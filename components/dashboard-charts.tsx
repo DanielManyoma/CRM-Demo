@@ -1,0 +1,93 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+} from 'recharts';
+
+const LEADS_OVER_TIME = [
+  { date: 'Jan 17', leads: 2 },
+  { date: 'Jan 18', leads: 1 },
+  { date: 'Jan 19', leads: 3 },
+  { date: 'Jan 20', leads: 2 },
+  { date: 'Jan 21', leads: 4 },
+  { date: 'Jan 22', leads: 1 },
+  { date: 'Jan 23', leads: 2 },
+  { date: 'Jan 24', leads: 3 },
+  { date: 'Jan 25', leads: 1 },
+  { date: 'Jan 26', leads: 2 },
+  { date: 'Jan 27', leads: 2 },
+  { date: 'Jan 28', leads: 3 },
+  { date: 'Jan 29', leads: 2 },
+  { date: 'Jan 30', leads: 4 },
+];
+
+type PipelineStageRow = { stage: string; value: number };
+
+interface DashboardChartsProps {
+  pipelineStages: PipelineStageRow[];
+}
+
+function ChartsSkeleton() {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6 h-[340px] animate-pulse">
+        <div className="h-5 w-40 bg-slate-100 rounded mb-4" />
+        <div className="h-[260px] bg-slate-50 rounded" />
+      </div>
+      <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6 h-[340px] animate-pulse">
+        <div className="h-5 w-48 bg-slate-100 rounded mb-4" />
+        <div className="h-[260px] bg-slate-50 rounded" />
+      </div>
+    </div>
+  );
+}
+
+export function DashboardCharts({ pipelineStages }: DashboardChartsProps) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <ChartsSkeleton />;
+  }
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
+        <h2 className="text-base font-bold text-slate-950 mb-4">Pipeline value by stage</h2>
+        <div className="w-full h-[260px] min-h-[200px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={pipelineStages} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <XAxis dataKey="stage" tick={{ fontSize: 11, fill: '#64748b' }} />
+              <YAxis tick={{ fontSize: 11, fill: '#64748b' }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
+              <Bar dataKey="value" fill="#f97066" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+      <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
+        <h2 className="text-base font-bold text-slate-950 mb-4">Leads over time (last 14 days)</h2>
+        <div className="w-full h-[260px] min-h-[200px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={LEADS_OVER_TIME} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#64748b' }} />
+              <YAxis tick={{ fontSize: 11, fill: '#64748b' }} allowDecimals={false} />
+              <Line type="monotone" dataKey="leads" stroke="#f97066" strokeWidth={2} dot={{ fill: '#f97066' }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  );
+}
