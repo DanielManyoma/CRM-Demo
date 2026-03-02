@@ -15,6 +15,8 @@ export type Lead = {
   createdAt: Date;
   priority: 'low' | 'medium' | 'high';
   notes: string;
+  /** Agent or owner id for team view and per-agent metrics. */
+  ownerId: string;
 };
 
 export type DashboardStats = {

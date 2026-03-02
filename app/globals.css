@@ -2,17 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Semantic theme tokens – applied via data-theme on <html> */
+:root,
+[data-theme="light"] {
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --border: #e2e8f0;
+  --accent: #f03f0c;
+  --accent-hover: #c72f0c;
+  --accent-muted: #fff4ed;
+  --accent-muted-text: #9e2812;
+}
+
+[data-theme="dark"] {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --border: #334155;
+  --accent: #ff7a3c;
+  --accent-hover: #ffa574;
+  --accent-muted: #431407;
+  --accent-muted-text: #fdba74;
+}
+
 @layer base {
-  :root {
-    --background: 248 250 252; /* slate-50 */
-    --foreground: 2 6 23; /* slate-950 */
-  }
-
   body {
-    @apply bg-slate-50 text-slate-950 antialiased;
+    background-color: var(--bg);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Improved text rendering */
   * {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

@@ -5,8 +5,15 @@ import { DashboardCharts } from '@/components/dashboard-charts';
 import { StatCard } from '@/components/stat-card';
 import { StatCardSkeleton } from '@/components/states/stat-card-skeleton';
 import { DashboardEmpty } from '@/components/states/dashboard-empty';
-import { Users, TrendingUp, DollarSign, Target, CheckCircle, Clock, Settings } from 'lucide-react';
-import { mockLeads } from '@/lib/mock-data';
+import { Users, TrendingUp, DollarSign, Target, CheckCircle, Clock, Settings, CalendarCheck, AlertTriangle } from 'lucide-react';
+import { useLeads } from '@/components/leads-provider';
+import {
+  getLeadsNeedingFollowUp,
+  sortLeadsByPriority,
+  getLeadsStaleNoMovement,
+  getHighValueNoRecentContact,
+} from '@/lib/prioritization';
+import { computeDashboardStats, computePipelineStages } from '@/lib/metrics';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -14,35 +21,21 @@ type ViewState = 'normal' | 'loading' | 'empty';
 
 export default function DashboardPage() {
   const [viewState, setViewState] = useState<ViewState>('normal');
+  const { leads: storedLeads } = useLeads();
+  const leads = viewState === 'empty' ? [] : storedLeads;
+  const followUpLeads = getLeadsNeedingFollowUp(leads);
+  const followUpCount = followUpLeads.length;
 
-  const leads = viewState === 'empty' ? [] : mockLeads;
+  const stats = computeDashboardStats(leads);
+  const { totalLeads, newLeads, qualifiedLeads, proposalStage, wonDeals, totalValue, avgDealSize, conversionRate } = stats;
 
-  // Calculate stats from mock data
-  const totalLeads = leads.length;
-  const newLeads = leads.filter(l => l.status === 'new').length;
-  const qualifiedLeads = leads.filter(l => l.status === 'qualified').length;
-  const proposalStage = leads.filter(l => l.status === 'proposal').length;
-  const wonDeals = leads.filter(l => l.status === 'closed-won').length;
-  const totalValue = leads
-    .filter(l => l.status !== 'closed-lost')
-    .reduce((sum, lead) => sum + lead.value, 0);
-  const avgDealSize = totalLeads > 0 ? totalValue / (totalLeads - leads.filter(l => l.status === 'closed-lost').length) : 0;
-  const conversionRate = totalLeads > 0 ? ((wonDeals / totalLeads) * 100).toFixed(1) : '0.0';
+  const activeLeads = leads.filter((l) => l.status !== 'closed-won' && l.status !== 'closed-lost');
+  const nextBestActions = sortLeadsByPriority(activeLeads).slice(0, 5);
 
-  // Recent activity
-  const recentLeads = [...leads]
-    .sort((a, b) => b.lastContact.getTime() - a.lastContact.getTime())
-    .slice(0, 5);
+  const staleLeads = getLeadsStaleNoMovement(leads);
+  const highValueNoContact = getHighValueNoRecentContact(leads);
 
-  // Pipeline value by stage (for bar chart) — derived from leads
-  const pipelineStages = [
-    { stage: 'New', value: leads.filter((l) => l.status === 'new').reduce((s, l) => s + l.value, 0) },
-    { stage: 'Contacted', value: leads.filter((l) => l.status === 'contacted').reduce((s, l) => s + l.value, 0) },
-    { stage: 'Qualified', value: leads.filter((l) => l.status === 'qualified').reduce((s, l) => s + l.value, 0) },
-    { stage: 'Proposal', value: leads.filter((l) => l.status === 'proposal').reduce((s, l) => s + l.value, 0) },
-    { stage: 'Negotiation', value: leads.filter((l) => l.status === 'negotiation').reduce((s, l) => s + l.value, 0) },
-    { stage: 'Closed', value: leads.filter((l) => l.status === 'closed-won').reduce((s, l) => s + l.value, 0) },
-  ];
+  const pipelineStages = computePipelineStages(leads);
 
   return (
     <CRMLayout>
@@ -51,8 +44,8 @@ export default function DashboardPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-slate-950">Dashboard</h1>
-              <p className="mt-1 text-sm text-slate-600 font-medium">
+              <h1 className="text-2xl font-bold text-[var(--text-primary)]">Dashboard</h1>
+              <p className="mt-1 text-sm text-[var(--text-secondary)] font-medium">
                 Overview of your sales pipeline and performance
               </p>
             </div>
@@ -107,9 +100,18 @@ export default function DashboardPage() {
                   <StatCardSkeleton />
                   <StatCardSkeleton />
                   <StatCardSkeleton />
+                  <StatCardSkeleton />
                 </>
               ) : (
                 <>
+                  <Link href="/leads?followUp=true" className="block cursor-pointer">
+                    <StatCard
+                      title="Follow Up Today"
+                      value={followUpCount}
+                      subtitle="need contact"
+                      icon={CalendarCheck}
+                    />
+                  </Link>
                   <StatCard
                     title="Total Leads"
                     value={totalLeads}
@@ -132,7 +134,7 @@ export default function DashboardPage() {
                   />
                   <StatCard
                     title="Conversion Rate"
-                    value={`${conversionRate}%`}
+                    value={`${conversionRate.toFixed(1)}%`}
                     subtitle={`${wonDeals} deals closed`}
                     icon={TrendingUp}
                   />
@@ -140,16 +142,46 @@ export default function DashboardPage() {
               )}
             </div>
 
+            {/* Pipeline risk */}
+            {viewState !== 'loading' && (
+              <div className="mb-8 bg-[var(--surface)] rounded-lg border border-[var(--border)] shadow-sm">
+                <div className="px-6 py-4 border-b border-[var(--border)] flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-amber-600" />
+                  <h2 className="text-lg font-bold text-[var(--text-primary)]">Pipeline risk</h2>
+                </div>
+                <div className="divide-y divide-[var(--border)]">
+                  <Link
+                    href="/leads?risk=stale"
+                    className="flex items-center justify-between px-6 py-4 hover:bg-[var(--border)]/30 transition-colors"
+                  >
+                    <span className="text-sm text-[var(--text-primary)] font-medium">
+                      {staleLeads.length} deal{staleLeads.length !== 1 ? 's' : ''} have not moved in 14 days
+                    </span>
+                    <span className="text-sm font-bold text-coral-600 hover:underline">View list →</span>
+                  </Link>
+                  <Link
+                    href="/leads?risk=highValue"
+                    className="flex items-center justify-between px-6 py-4 hover:bg-[var(--border)]/30 transition-colors"
+                  >
+                    <span className="text-sm text-[var(--text-primary)] font-medium">
+                      {highValueNoContact.length} high-value lead{highValueNoContact.length !== 1 ? 's' : ''} have no recent contact
+                    </span>
+                    <span className="text-sm font-bold text-coral-600 hover:underline">View list →</span>
+                  </Link>
+                </div>
+              </div>
+            )}
+
             {/* Charts — client-only to avoid Recharts SSR issues */}
             <DashboardCharts pipelineStages={pipelineStages} />
 
-            {/* Recent Activity */}
+            {/* Next best actions */}
             {viewState === 'loading' ? (
-              <div className="bg-white rounded-lg border border-slate-200 shadow-sm">
-                <div className="px-6 py-4 border-b border-slate-200">
+              <div className="bg-[var(--surface)] rounded-lg border border-[var(--border)] shadow-sm">
+                <div className="px-6 py-4 border-b border-[var(--border)]">
                   <div className="h-6 w-32 bg-slate-200 rounded animate-pulse" />
                 </div>
-                <div className="divide-y divide-slate-200">
+                <div className="divide-y divide-[var(--border)]">
                   {[...Array(5)].map((_, i) => (
                     <div key={i} className="px-6 py-4 animate-pulse">
                       <div className="flex items-center justify-between">
@@ -173,24 +205,24 @@ export default function DashboardPage() {
                 </div>
               </div>
             ) : (
-              <div className="bg-white rounded-lg border border-slate-200 shadow-sm">
-          <div className="px-6 py-4 border-b border-slate-200">
+              <div className="bg-[var(--surface)] rounded-lg border border-[var(--border)] shadow-sm">
+          <div className="px-6 py-4 border-b border-[var(--border)]">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-slate-950">Recent Activity</h2>
+              <h2 className="text-lg font-bold text-[var(--text-primary)]">Next best actions</h2>
               <Link
-                href="/leads"
+                href="/leads?followUp=true"
                 className="text-sm font-bold text-coral-600 hover:text-coral-700 hover:underline transition-colors"
               >
-                View all leads →
+                View follow-up list →
               </Link>
             </div>
           </div>
           {/* Column-based layout: same grid template for every row */}
-          <div className="divide-y divide-slate-200">
-            {recentLeads.map((lead) => (
+          <div className="divide-y divide-[var(--border)]">
+            {nextBestActions.map((lead) => (
               <div
                 key={lead.id}
-                className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_5rem_6.5rem_6.5rem] items-center gap-x-6 gap-y-1 px-6 py-4 hover:bg-slate-50 transition-colors"
+                className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_5rem_6.5rem_6.5rem] items-center gap-x-6 gap-y-1 px-6 py-4 hover:bg-[var(--border)]/30 transition-colors"
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="flex-shrink-0">
@@ -201,16 +233,16 @@ export default function DashboardPage() {
                     )}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-bold text-slate-950 truncate">
-                      {lead.companyName}
-                    </p>
-                    <p className="text-sm text-slate-600 font-medium truncate">{lead.contactName}</p>
+                    <p className="text-sm font-bold text-[var(--text-primary)] truncate">
+                          {lead.companyName}
+                        </p>
+                    <p className="text-sm text-[var(--text-secondary)] font-medium truncate">{lead.contactName}</p>
                   </div>
                 </div>
-                <div className="text-right text-sm font-bold text-slate-950">
+                <div className="text-right text-sm font-bold text-[var(--text-primary)]">
                   ${(lead.value / 1000).toFixed(0)}k
                 </div>
-                <div className="text-right text-xs font-medium text-slate-500">
+                <div className="text-right text-xs font-medium text-[var(--text-secondary)]">
                   {new Date(lead.lastContact).toLocaleDateString()}
                 </div>
                 <div className="flex justify-end">

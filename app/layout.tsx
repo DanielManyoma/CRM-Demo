@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import { ThemeProvider } from '@/components/theme-provider'
+import { LeadsProvider } from '@/components/leads-provider'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -15,8 +17,19 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var t=localStorage.getItem('crm-theme');document.documentElement.setAttribute('data-theme',t==='dark'?'dark':'light');})();`,
+          }}
+        />
+      </head>
+      <body className={inter.className}>
+        <ThemeProvider>
+          <LeadsProvider>{children}</LeadsProvider>
+        </ThemeProvider>
+      </body>
     </html>
   )
 }

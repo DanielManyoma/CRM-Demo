@@ -38,13 +38,13 @@ interface DashboardChartsProps {
 function ChartsSkeleton() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-      <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6 h-[340px] animate-pulse">
-        <div className="h-5 w-40 bg-slate-100 rounded mb-4" />
-        <div className="h-[260px] bg-slate-50 rounded" />
+      <div className="bg-[var(--surface)] rounded-lg border border-[var(--border)] shadow-sm p-6 h-[340px] animate-pulse">
+        <div className="h-5 w-40 bg-[var(--border)] rounded mb-4" />
+        <div className="h-[260px] bg-[var(--border)]/30 rounded" />
       </div>
-      <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6 h-[340px] animate-pulse">
-        <div className="h-5 w-48 bg-slate-100 rounded mb-4" />
-        <div className="h-[260px] bg-slate-50 rounded" />
+      <div className="bg-[var(--surface)] rounded-lg border border-[var(--border)] shadow-sm p-6 h-[340px] animate-pulse">
+        <div className="h-5 w-48 bg-[var(--border)] rounded mb-4" />
+        <div className="h-[260px] bg-[var(--border)]/30 rounded" />
       </div>
     </div>
   );
@@ -62,8 +62,8 @@ export function DashboardCharts({ pipelineStages }: DashboardChartsProps) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-      <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
-        <h2 className="text-base font-bold text-slate-950 mb-4">Pipeline value by stage</h2>
+      <div className="bg-[var(--surface)] rounded-lg border border-[var(--border)] shadow-sm p-6">
+        <h2 className="text-base font-bold text-[var(--text-primary)] mb-4">Pipeline value by stage</h2>
         <div className="w-full h-[260px] min-h-[200px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={pipelineStages} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
@@ -75,8 +75,8 @@ export function DashboardCharts({ pipelineStages }: DashboardChartsProps) {
           </ResponsiveContainer>
         </div>
       </div>
-      <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
-        <h2 className="text-base font-bold text-slate-950 mb-4">Leads over time (last 14 days)</h2>
+      <div className="bg-[var(--surface)] rounded-lg border border-[var(--border)] shadow-sm p-6">
+        <h2 className="text-base font-bold text-[var(--text-primary)] mb-4">Leads over time (last 14 days)</h2>
         <div className="w-full h-[260px] min-h-[200px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={LEADS_OVER_TIME} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>

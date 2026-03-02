@@ -3,16 +3,28 @@
 import { CRMLayout } from '@/components/crm-layout';
 import { LeadsTable } from '@/components/leads-table';
 import { AddLeadModal } from '@/components/add-lead-modal';
-import { mockLeads } from '@/lib/mock-data';
+import { useLeads } from '@/components/leads-provider';
+import {
+  getLeadsNeedingFollowUp,
+  getLeadsStaleNoMovement,
+  getHighValueNoRecentContact,
+  sortLeadsByPriority,
+} from '@/lib/prioritization';
 import type { Lead } from '@/lib/types';
 import { Plus, Download, Settings } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 type ViewState = 'normal' | 'loading' | 'empty' | 'error';
 
-export default function LeadsPage() {
+function LeadsPageContent() {
+  const searchParams = useSearchParams();
+  const followUpFilter = searchParams.get('followUp') === 'true';
+  const riskFilter = searchParams.get('risk'); // 'stale' | 'highValue'
+  const ownerFilter = searchParams.get('owner'); // agent id from team view
+
   const [viewState, setViewState] = useState<ViewState>('normal');
-  const [leads, setLeads] = useState<Lead[]>(mockLeads);
+  const { leads, setLeads } = useLeads();
   const [showAddLead, setShowAddLead] = useState(false);
 
   const handleAddLead = () => setShowAddLead(true);
@@ -33,6 +45,16 @@ export default function LeadsPage() {
     return leads;
   };
 
+  const displayedLeads = useMemo(() => {
+    let data = getLeadsData();
+    if (viewState === 'empty') return [];
+    if (ownerFilter) data = data.filter((l) => (l.ownerId ?? 'agent-1') === ownerFilter);
+    if (followUpFilter && data.length > 0) return getLeadsNeedingFollowUp(data);
+    if (riskFilter === 'stale' && data.length > 0) return sortLeadsByPriority(getLeadsStaleNoMovement(data));
+    if (riskFilter === 'highValue' && data.length > 0) return sortLeadsByPriority(getHighValueNoRecentContact(data));
+    return data;
+  }, [followUpFilter, riskFilter, ownerFilter, leads, viewState]);
+
   return (
     <CRMLayout>
       <div className="p-8">
@@ -40,8 +62,8 @@ export default function LeadsPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-slate-950">Leads</h1>
-              <p className="mt-1 text-sm text-slate-600 font-medium">
+              <h1 className="text-2xl font-bold text-[var(--text-primary)]">Leads</h1>
+              <p className="mt-1 text-sm text-[var(--text-secondary)] font-medium">
                 Manage and track your sales pipeline
               </p>
             </div>
@@ -105,9 +127,31 @@ export default function LeadsPage() {
           </div>
         </div>
 
+        {/* Filter hint */}
+        {followUpFilter && (
+          <p className="mb-4 text-sm text-[var(--text-secondary)] font-medium">
+            Showing only leads that need follow-up (no contact in 7+ days), sorted by priority.
+          </p>
+        )}
+        {riskFilter === 'stale' && (
+          <p className="mb-4 text-sm text-[var(--text-secondary)] font-medium">
+            Showing deals with no contact in 14+ days (pipeline risk), sorted by priority.
+          </p>
+        )}
+        {riskFilter === 'highValue' && (
+          <p className="mb-4 text-sm text-[var(--text-secondary)] font-medium">
+            Showing high-value leads with no recent contact, sorted by priority.
+          </p>
+        )}
+        {ownerFilter && (
+          <p className="mb-4 text-sm text-[var(--text-secondary)] font-medium">
+            Showing leads for {ownerFilter === 'agent-1' ? 'Agent 1' : ownerFilter === 'agent-2' ? 'Agent 2' : ownerFilter}.
+          </p>
+        )}
+
         {/* Leads Table */}
         <LeadsTable 
-          leads={getLeadsData()} 
+          leads={displayedLeads} 
           isLoading={viewState === 'loading'}
           error={viewState === 'error' ? 'Unable to fetch leads from the server. Please check your connection and try again.' : null}
           onAddLead={handleAddLead}
@@ -122,5 +166,22 @@ export default function LeadsPage() {
         />
       </div>
     </CRMLayout>
+  );
+}
+
+export default function LeadsPage() {
+  return (
+    <Suspense
+      fallback={
+        <CRMLayout>
+          <div className="p-8">
+            <div className="h-8 w-48 bg-[var(--border)] rounded animate-pulse mb-8" />
+            <div className="h-64 bg-[var(--border)]/30 rounded animate-pulse" />
+          </div>
+        </CRMLayout>
+      }
+    >
+      <LeadsPageContent />
+    </Suspense>
   );
 }

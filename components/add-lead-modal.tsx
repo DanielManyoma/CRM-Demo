@@ -74,6 +74,7 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
       createdAt: now,
       priority: form.priority,
       notes: form.notes.trim(),
+      ownerId: 'agent-1',
     };
     onSave(lead);
     setForm(defaultForm);
@@ -91,21 +92,21 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-slate-900/50" aria-hidden onClick={handleClose} />
+      <div className="absolute inset-0 bg-black/50" aria-hidden onClick={handleClose} />
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="add-lead-title"
-        className="relative w-full max-w-lg bg-white rounded-xl border border-slate-200 shadow-xl max-h-[90vh] overflow-hidden flex flex-col"
+        className="relative w-full max-w-lg bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-xl max-h-[90vh] overflow-hidden flex flex-col"
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
-          <h2 id="add-lead-title" className="text-lg font-bold text-slate-950">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
+          <h2 id="add-lead-title" className="text-lg font-bold text-[var(--text-primary)]">
             Add Lead
           </h2>
           <button
             type="button"
             onClick={handleClose}
-            className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-950 transition-colors"
+            className="p-2 rounded-lg text-[var(--text-secondary)] hover:bg-[var(--border)]/50 hover:text-[var(--text-primary)] transition-colors"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -114,7 +115,7 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-auto">
           <div className="px-6 py-4 space-y-4">
             <div>
-              <label htmlFor="companyName" className="block text-sm font-semibold text-slate-700 mb-1">
+              <label htmlFor="companyName" className="block text-sm font-semibold text-[var(--text-secondary)] mb-1">
                 Company name
               </label>
               <input
@@ -122,8 +123,8 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
                 type="text"
                 value={form.companyName}
                 onChange={(e) => handleChange('companyName', e.target.value)}
-                className={`w-full px-3 py-2 rounded-lg border text-slate-950 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-coral-500 focus:border-coral-500 ${
-                  errors.companyName ? 'border-rose-400' : 'border-slate-300'
+                className={`w-full px-3 py-2 rounded-lg border bg-[var(--surface)] text-[var(--text-primary)] font-medium placeholder:text-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)] ${
+                  errors.companyName ? 'border-rose-400' : 'border-[var(--border)]'
                 }`}
                 placeholder="Acme Inc"
               />
@@ -132,7 +133,7 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
               )}
             </div>
             <div>
-              <label htmlFor="contactName" className="block text-sm font-semibold text-slate-700 mb-1">
+              <label htmlFor="contactName" className="block text-sm font-semibold text-[var(--text-secondary)] mb-1">
                 Contact name
               </label>
               <input
@@ -140,7 +141,7 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
                 type="text"
                 value={form.contactName}
                 onChange={(e) => handleChange('contactName', e.target.value)}
-                className={`w-full px-3 py-2 rounded-lg border text-slate-950 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-coral-500 focus:border-coral-500 ${
+                className={`w-full px-3 py-2 rounded-lg border text-slate-950 font-medium placeholder:text-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)] ${
                   errors.contactName ? 'border-rose-400' : 'border-slate-300'
                 }`}
                 placeholder="Jane Smith"
@@ -150,7 +151,7 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
               )}
             </div>
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-semibold text-[var(--text-secondary)] mb-1">
                 Email
               </label>
               <input
@@ -158,7 +159,7 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
                 type="email"
                 value={form.email}
                 onChange={(e) => handleChange('email', e.target.value)}
-                className={`w-full px-3 py-2 rounded-lg border text-slate-950 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-coral-500 focus:border-coral-500 ${
+                className={`w-full px-3 py-2 rounded-lg border text-slate-950 font-medium placeholder:text-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)] ${
                   errors.email ? 'border-rose-400' : 'border-slate-300'
                 }`}
                 placeholder="jane@acme.com"
@@ -168,7 +169,7 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
               )}
             </div>
             <div>
-              <label htmlFor="phone" className="block text-sm font-semibold text-slate-700 mb-1">
+              <label htmlFor="phone" className="block text-sm font-semibold text-[var(--text-secondary)] mb-1">
                 Phone
               </label>
               <input
@@ -176,7 +177,7 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
                 type="tel"
                 value={form.phone}
                 onChange={(e) => handleChange('phone', e.target.value)}
-                className={`w-full px-3 py-2 rounded-lg border text-slate-950 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-coral-500 focus:border-coral-500 ${
+                className={`w-full px-3 py-2 rounded-lg border text-slate-950 font-medium placeholder:text-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)] ${
                   errors.phone ? 'border-rose-400' : 'border-slate-300'
                 }`}
                 placeholder="+1 (555) 000-0000"
@@ -187,14 +188,14 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="status" className="block text-sm font-semibold text-slate-700 mb-1">
+                <label htmlFor="status" className="block text-sm font-semibold text-[var(--text-secondary)] mb-1">
                   Status
                 </label>
                 <select
                   id="status"
                   value={form.status}
                   onChange={(e) => handleChange('status', e.target.value as LeadStatus)}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 text-slate-950 font-medium focus:outline-none focus:ring-2 focus:ring-coral-500 focus:border-coral-500"
+                  className="w-full px-3 py-2 rounded-lg border border-[var(--border)] text-[var(--text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)]"
                 >
                   {STATUS_OPTIONS.map((s) => (
                     <option key={s} value={s}>
@@ -204,14 +205,14 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
                 </select>
               </div>
               <div>
-                <label htmlFor="source" className="block text-sm font-semibold text-slate-700 mb-1">
+                <label htmlFor="source" className="block text-sm font-semibold text-[var(--text-secondary)] mb-1">
                   Source
                 </label>
                 <select
                   id="source"
                   value={form.source}
                   onChange={(e) => handleChange('source', e.target.value as LeadSource)}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 text-slate-950 font-medium focus:outline-none focus:ring-2 focus:ring-coral-500 focus:border-coral-500"
+                  className="w-full px-3 py-2 rounded-lg border border-[var(--border)] text-[var(--text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)]"
                 >
                   {SOURCE_OPTIONS.map((s) => (
                     <option key={s} value={s}>
@@ -223,7 +224,7 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="value" className="block text-sm font-semibold text-slate-700 mb-1">
+                <label htmlFor="value" className="block text-sm font-semibold text-[var(--text-secondary)] mb-1">
                   Deal value ($)
                 </label>
                 <input
@@ -233,7 +234,7 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
                   step={1000}
                   value={form.value}
                   onChange={(e) => handleChange('value', e.target.value)}
-                  className={`w-full px-3 py-2 rounded-lg border text-slate-950 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-coral-500 focus:border-coral-500 ${
+                  className={`w-full px-3 py-2 rounded-lg border text-slate-950 font-medium placeholder:text-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)] ${
                     errors.value ? 'border-rose-400' : 'border-slate-300'
                   }`}
                   placeholder="50000"
@@ -243,14 +244,14 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
                 )}
               </div>
               <div>
-                <label htmlFor="priority" className="block text-sm font-semibold text-slate-700 mb-1">
+                <label htmlFor="priority" className="block text-sm font-semibold text-[var(--text-secondary)] mb-1">
                   Priority
                 </label>
                 <select
                   id="priority"
                   value={form.priority}
                   onChange={(e) => handleChange('priority', e.target.value as 'low' | 'medium' | 'high')}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 text-slate-950 font-medium focus:outline-none focus:ring-2 focus:ring-coral-500 focus:border-coral-500"
+                  className="w-full px-3 py-2 rounded-lg border border-[var(--border)] text-[var(--text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)]"
                 >
                   {PRIORITY_OPTIONS.map((p) => (
                     <option key={p} value={p}>
@@ -261,7 +262,7 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
               </div>
             </div>
             <div>
-              <label htmlFor="notes" className="block text-sm font-semibold text-slate-700 mb-1">
+              <label htmlFor="notes" className="block text-sm font-semibold text-[var(--text-secondary)] mb-1">
                 Notes
               </label>
               <textarea
@@ -269,22 +270,22 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
                 value={form.notes}
                 onChange={(e) => handleChange('notes', e.target.value)}
                 rows={3}
-                className="w-full px-3 py-2 rounded-lg border border-slate-300 text-slate-950 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-coral-500 focus:border-coral-500 resize-none"
+                className="w-full px-3 py-2 rounded-lg border border-[var(--border)] text-[var(--text-primary)] font-medium placeholder:text-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)] resize-none"
                 placeholder="Optional notes..."
               />
             </div>
           </div>
-          <div className="flex justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50/50">
+          <div className="flex justify-end gap-3 px-6 py-4 border-t border-[var(--border)] bg-[var(--border)]/20">
             <button
               type="button"
               onClick={handleClose}
-              className="px-4 py-2.5 rounded-lg text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition-colors"
+              className="px-4 py-2.5 rounded-lg text-sm font-semibold text-[var(--text-primary)] bg-[var(--surface)] border border-[var(--border)] hover:opacity-90 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2.5 rounded-lg text-sm font-bold text-white bg-coral-600 hover:bg-coral-700 transition-colors shadow-sm hover:shadow-md"
+              className="px-4 py-2.5 rounded-lg text-sm font-bold text-white bg-[var(--accent)] hover:opacity-90 transition-colors shadow-sm hover:shadow-md"
             >
               Add Lead
             </button>

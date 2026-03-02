@@ -1,10 +1,10 @@
 export function TableSkeleton() {
   return (
-    <div className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm">
+    <div className="bg-[var(--surface)] rounded-lg border border-[var(--border)] overflow-hidden shadow-sm">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="bg-slate-50 border-b border-slate-200">
+            <tr className="bg-[var(--border)]/30 border-b border-[var(--border)]">
               <th className="px-6 py-3.5 text-left">
                 <div className="h-3 w-32 bg-slate-200 rounded animate-pulse" />
               </th>

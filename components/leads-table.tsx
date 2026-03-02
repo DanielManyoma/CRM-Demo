@@ -44,7 +44,7 @@ function FilterDropdown({
   onToggle,
 }: {
   selectedStatuses: Set<LeadStatus>;
-  setSelectedStatuses: (s: Set<LeadStatus>) => void;
+  setSelectedStatuses: React.Dispatch<React.SetStateAction<Set<LeadStatus>>>;
   leads: Lead[];
   statusConfig: Record<LeadStatus, { label: string; colors: string }>;
   open: boolean;
@@ -71,7 +71,7 @@ function FilterDropdown({
         className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold border transition-all ${
           selectedStatuses.size > 0
             ? 'bg-coral-50 border-coral-200 text-coral-900'
-            : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
+            : 'bg-[var(--surface)] border-[var(--border)] text-[var(--text-secondary)] hover:opacity-90'
         }`}
       >
         <Filter className="w-4 h-4" />
@@ -84,12 +84,12 @@ function FilterDropdown({
         <ChevronDown className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <div className="absolute left-0 top-full mt-1 z-20 w-56 bg-white border border-slate-200 rounded-lg shadow-lg py-2">
-          <div className="px-3 pb-2 border-b border-slate-200">
+        <div className="absolute left-0 top-full mt-1 z-20 w-56 bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-lg py-2">
+          <div className="px-3 pb-2 border-b border-[var(--border)]">
             <button
               type="button"
               onClick={clearFilters}
-              className="text-xs font-bold text-slate-600 hover:text-slate-950"
+              className="text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             >
               Clear all
             </button>
@@ -98,7 +98,7 @@ function FilterDropdown({
             {statusesWithCount.map(({ status, label, count }) => (
               <label
                 key={status}
-                className="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 cursor-pointer"
+                className="flex items-center gap-2 px-3 py-2 hover:bg-[var(--border)]/30 cursor-pointer"
               >
                 <input
                   type="checkbox"
@@ -106,8 +106,8 @@ function FilterDropdown({
                   onChange={() => toggleStatus(status)}
                   className="rounded border-slate-300 text-coral-600 focus:ring-coral-500"
                 />
-                <span className="text-sm font-medium text-slate-800">{label}</span>
-                <span className="text-xs text-slate-500 ml-auto">({count})</span>
+                <span className="text-sm font-medium text-[var(--text-primary)]">{label}</span>
+                <span className="text-xs text-[var(--text-secondary)] ml-auto">({count})</span>
               </label>
             ))}
           </div>
@@ -270,34 +270,34 @@ export function LeadsTable({ leads, isLoading = false, error = null, onAddLead, 
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm">
+      <div className="bg-[var(--surface)] rounded-lg border border-[var(--border)] overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200">
-                <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+              <tr className="bg-[var(--border)]/30 border-b border-[var(--border)]">
+                <th className="px-6 py-3.5 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
                   <SortButton field="companyName">Lead</SortButton>
                 </th>
-                <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <th className="px-6 py-3.5 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
                   <SortButton field="status">Status</SortButton>
                 </th>
-                <th className="px-6 py-3.5 text-right text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <th className="px-6 py-3.5 text-right text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
                   <SortButton field="value">Deal Value</SortButton>
                 </th>
-                <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <th className="px-6 py-3.5 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
                   <SortButton field="lastContact">Activity</SortButton>
                 </th>
                 <th className="w-24 px-6 py-3.5"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200">
+            <tbody className="divide-y divide-[var(--border)]">
               {filteredAndSortedLeads.map((lead) => {
                 const isStale = isLeadStale(lead);
 
                 return (
                   <tr
                     key={lead.id}
-                    className="hover:bg-slate-50 transition-colors group"
+                    className="hover:bg-[var(--border)]/20 transition-colors group"
                   >
                     {/* Company & Contact - PRIMARY INFO */}
                     <td className="px-6 py-4">
@@ -310,15 +310,15 @@ export function LeadsTable({ leads, isLoading = false, error = null, onAddLead, 
                         <div className="min-w-0 flex-1">
                           {/* PRIMARY: Company name - largest, boldest */}
                           <div className="flex items-center gap-2">
-                            <h3 className="text-base font-bold text-slate-950 truncate">
+                            <h3 className="text-base font-bold text-[var(--text-primary)] truncate">
                               {lead.companyName}
                             </h3>
                             {isStale && (
-                              <AlertCircle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" title="Needs follow-up" />
+                              <span title="Needs follow-up"><AlertCircle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" /></span>
                             )}
                           </div>
                           {/* SECONDARY: Contact name - medium weight */}
-                          <p className="text-sm text-slate-600 mt-0.5 font-medium">{lead.contactName}</p>
+                          <p className="text-sm text-[var(--text-secondary)] mt-0.5 font-medium">{lead.contactName}</p>
                           {/* CONTEXTUAL: Source & contact info - smallest, appears on hover */}
                           <div className="flex items-center gap-3 mt-1.5">
                             <span className="text-xs text-slate-400 font-medium capitalize">
@@ -358,10 +358,10 @@ export function LeadsTable({ leads, isLoading = false, error = null, onAddLead, 
 
                     {/* Deal Value - PRIMARY INFO */}
                     <td className="px-6 py-4 text-right">
-                      <p className="text-sm font-bold text-slate-950 tabular-nums">
+                      <p className="text-sm font-bold text-[var(--text-primary)] tabular-nums">
                         ${lead.value.toLocaleString()}
                       </p>
-                      <p className="text-xs text-slate-400 mt-0.5 font-medium tabular-nums">
+                      <p className="text-xs text-[var(--text-secondary)] mt-0.5 font-medium tabular-nums">
                         ~${(lead.value / 12).toFixed(0)}/mo
                       </p>
                     </td>
@@ -370,11 +370,11 @@ export function LeadsTable({ leads, isLoading = false, error = null, onAddLead, 
                     <td className="px-6 py-4">
                       <div>
                         <p className={`text-sm font-bold ${
-                          isStale ? 'text-amber-700' : 'text-slate-950'
+                          isStale ? 'text-amber-700' : 'text-[var(--text-primary)]'
                         }`}>
                           {formatDate(lead.lastContact)}
                         </p>
-                        <p className="text-xs text-slate-400 mt-0.5">
+                        <p className="text-xs text-[var(--text-secondary)] mt-0.5">
                           Created {formatDate(lead.createdAt)}
                         </p>
                       </div>
@@ -413,7 +413,7 @@ export function LeadsTable({ leads, isLoading = false, error = null, onAddLead, 
       </div>
 
       {/* Results count */}
-      <div className="text-sm text-slate-700 font-semibold">
+      <div className="text-sm text-[var(--text-secondary)] font-semibold">
         Showing {filteredAndSortedLeads.length} of {leads.length} leads
       </div>
     </div>

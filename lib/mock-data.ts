@@ -14,6 +14,7 @@ export const mockLeads: Lead[] = [
     createdAt: new Date('2026-01-15'),
     priority: 'high',
     notes: 'Interested in enterprise plan. Budget approved for Q1.',
+    ownerId: 'agent-1',
   },
   {
     id: 'L-002',
@@ -28,6 +29,7 @@ export const mockLeads: Lead[] = [
     createdAt: new Date('2026-01-10'),
     priority: 'high',
     notes: 'Requested custom pricing. Decision maker meeting scheduled.',
+    ownerId: 'agent-1',
   },
   {
     id: 'L-003',
@@ -42,6 +44,7 @@ export const mockLeads: Lead[] = [
     createdAt: new Date('2025-12-20'),
     priority: 'high',
     notes: 'Contract review in progress. Negotiating implementation timeline.',
+    ownerId: 'agent-1',
   },
   {
     id: 'L-004',
@@ -56,6 +59,7 @@ export const mockLeads: Lead[] = [
     createdAt: new Date('2026-01-22'),
     priority: 'medium',
     notes: 'Initial call completed. Sent product overview.',
+    ownerId: 'agent-1',
   },
   {
     id: 'L-005',
@@ -70,6 +74,7 @@ export const mockLeads: Lead[] = [
     createdAt: new Date('2025-12-01'),
     priority: 'high',
     notes: 'Deal closed. Onboarding starts Feb 1.',
+    ownerId: 'agent-1',
   },
   {
     id: 'L-006',
@@ -84,6 +89,7 @@ export const mockLeads: Lead[] = [
     createdAt: new Date('2026-01-30'),
     priority: 'medium',
     notes: 'Just filled out contact form. Needs follow-up call.',
+    ownerId: 'agent-2',
   },
   {
     id: 'L-007',
@@ -98,6 +104,7 @@ export const mockLeads: Lead[] = [
     createdAt: new Date('2026-01-18'),
     priority: 'high',
     notes: 'Met at SaaS Summit. Strong interest in platform integration.',
+    ownerId: 'agent-2',
   },
   {
     id: 'L-008',
@@ -112,6 +119,7 @@ export const mockLeads: Lead[] = [
     createdAt: new Date('2026-01-20'),
     priority: 'medium',
     notes: 'Discovery call scheduled for Feb 3.',
+    ownerId: 'agent-2',
   },
   {
     id: 'L-009',
@@ -126,6 +134,7 @@ export const mockLeads: Lead[] = [
     createdAt: new Date('2025-12-15'),
     priority: 'low',
     notes: 'Went with competitor. Price was main factor.',
+    ownerId: 'agent-2',
   },
   {
     id: 'L-010',
@@ -140,6 +149,7 @@ export const mockLeads: Lead[] = [
     createdAt: new Date('2026-01-12'),
     priority: 'high',
     notes: 'Proposal sent. Waiting for internal review.',
+    ownerId: 'agent-2',
   },
   {
     id: 'L-011',
@@ -154,6 +164,7 @@ export const mockLeads: Lead[] = [
     createdAt: new Date('2026-01-30'),
     priority: 'low',
     notes: 'Downloaded whitepaper. Potential small business customer.',
+    ownerId: 'agent-1',
   },
   {
     id: 'L-012',
@@ -168,6 +179,7 @@ export const mockLeads: Lead[] = [
     createdAt: new Date('2026-01-14'),
     priority: 'high',
     notes: 'Partner referral. Needs multi-year contract.',
+    ownerId: 'agent-1',
   },
   {
     id: 'L-013',
@@ -182,6 +194,7 @@ export const mockLeads: Lead[] = [
     createdAt: new Date('2026-01-05'),
     priority: 'high',
     notes: 'Legal reviewing terms. Close expected in 2 weeks.',
+    ownerId: 'agent-1',
   },
   {
     id: 'L-014',
@@ -196,6 +209,7 @@ export const mockLeads: Lead[] = [
     createdAt: new Date('2026-01-19'),
     priority: 'medium',
     notes: 'Initial outreach positive. Demo requested.',
+    ownerId: 'agent-2',
   },
   {
     id: 'L-015',
@@ -210,5 +224,6 @@ export const mockLeads: Lead[] = [
     createdAt: new Date('2025-11-28'),
     priority: 'high',
     notes: 'Successfully closed. Implementation in progress.',
+    ownerId: 'agent-2',
   },
 ];
