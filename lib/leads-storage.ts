@@ -18,13 +18,14 @@ function serialize(leads: Lead[]): string {
 function revive(rows: unknown): Lead[] {
   if (!Array.isArray(rows)) return [];
   return rows.map((row: Record<string, unknown>) => {
-    const raw = { ...row } as Lead & { lastContact?: string | Date; createdAt?: string | Date; ownerId?: string };
+    const raw = { ...row } as Lead & { lastContact?: string | Date; createdAt?: string | Date; ownerId?: string; owner?: string };
     const lastContact =
       typeof raw.lastContact === 'string' ? new Date(raw.lastContact) : (raw.lastContact as Date);
     const createdAt =
       typeof raw.createdAt === 'string' ? new Date(raw.createdAt) : (raw.createdAt as Date);
     const ownerId = raw.ownerId ?? 'agent-1';
-    return { ...raw, lastContact, createdAt, ownerId } as Lead;
+    const owner = raw.owner ?? 'Marcus Reid';
+    return { ...raw, lastContact, createdAt, ownerId, owner } as Lead;
   });
 }
 

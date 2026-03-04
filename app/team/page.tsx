@@ -1,7 +1,7 @@
 'use client';
 
 import { CRMLayout } from '@/components/crm-layout';
-import { useLeads } from '@/components/leads-provider';
+import { useLeads } from '@/hooks/useLeads';
 import { computeDashboardStats, computePipelineStages } from '@/lib/metrics';
 import { getAgentSummaries } from '@/lib/team-metrics';
 import { expectedRevenueFromPipeline } from '@/lib/forecast';

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { CRMLayout } from '@/components/crm-layout';
-import { useLeads } from '@/components/leads-provider';
+import { useLeads } from '@/hooks/useLeads';
 import { computeDashboardStats } from '@/lib/metrics';
 import {
   LineChart,

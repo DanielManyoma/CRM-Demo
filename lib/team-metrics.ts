@@ -1,6 +1,6 @@
 import type { Lead } from './types';
 import { computeDashboardStats } from './metrics';
-import { getLeadsNeedingFollowUp } from './prioritization';
+import { getLeadsNeedingFollowUp } from './metrics';
 
 export type AgentSummary = {
   ownerId: string;

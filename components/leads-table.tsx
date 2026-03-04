@@ -2,7 +2,7 @@
 
 import { Lead, LeadStatus } from '@/lib/types';
 import { ArrowUpDown, Mail, Phone, MoreHorizontal, Eye, Edit2, AlertCircle, ChevronDown, Filter } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { TableSkeleton } from './states/table-skeleton';
 import { EmptyState } from './states/empty-state';
 import { NoResultsState } from './states/no-results-state';
@@ -14,6 +14,8 @@ interface LeadsTableProps {
   error?: string | null;
   onAddLead?: () => void;
   onRetry?: () => void;
+  /** If set, scroll this lead into view and briefly highlight it. */
+  highlightLeadId?: string;
 }
 
 type SortField = 'companyName' | 'status' | 'value' | 'lastContact' | 'priority';
@@ -117,12 +119,37 @@ function FilterDropdown({
   );
 }
 
-export function LeadsTable({ leads, isLoading = false, error = null, onAddLead, onRetry }: LeadsTableProps) {
+export function LeadsTable({ leads, isLoading = false, error = null, onAddLead, onRetry, highlightLeadId }: LeadsTableProps) {
   const [sortField, setSortField] = useState<SortField>('lastContact');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [selectedStatuses, setSelectedStatuses] = useState<Set<LeadStatus>>(new Set());
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
   const filterDropdownRef = useRef<HTMLDivElement>(null);
+
+  // ── Highlight / scroll-to ────────────────────────────────────────────────
+  const highlightRowRef = useRef<HTMLTableRowElement | null>(null);
+  const [isHighlightActive, setIsHighlightActive] = useState(false);
+
+  // Stable ref callback — attaches the DOM node for the target row.
+  const setHighlightRef = useCallback(
+    (el: HTMLTableRowElement | null) => { highlightRowRef.current = el; },
+    []
+  );
+
+  // Scroll into view whenever highlightLeadId changes or the sorted list re-renders.
+  useEffect(() => {
+    if (!highlightLeadId || !highlightRowRef.current) return;
+    highlightRowRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  // Coral fade: active for 3 s, then transitions out over 700 ms.
+  useEffect(() => {
+    if (!highlightLeadId) return;
+    setIsHighlightActive(true);
+    const timer = setTimeout(() => setIsHighlightActive(false), 3000);
+    return () => clearTimeout(timer);
+  }, [highlightLeadId]);
+  // ────────────────────────────────────────────────────────────────────────
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -293,14 +320,24 @@ export function LeadsTable({ leads, isLoading = false, error = null, onAddLead, 
             <tbody className="divide-y divide-[var(--border)]">
               {filteredAndSortedLeads.map((lead) => {
                 const isStale = isLeadStale(lead);
+                const isTarget = lead.id === highlightLeadId;
 
                 return (
                   <tr
                     key={lead.id}
-                    className="hover:bg-[var(--border)]/20 transition-colors group"
+                    ref={isTarget ? setHighlightRef : undefined}
+                    className={`transition-colors duration-700 group ${
+                      isTarget && isHighlightActive
+                        ? 'bg-coral-50'
+                        : 'hover:bg-[var(--border)]/20'
+                    }`}
                   >
                     {/* Company & Contact - PRIMARY INFO */}
-                    <td className="px-6 py-4">
+                    <td className={`py-4 transition-colors duration-700 ${
+                      isTarget && isHighlightActive
+                        ? 'pl-5 pr-6 border-l-[3px] border-coral-500'
+                        : 'px-6 border-l-[3px] border-transparent'
+                    }`}>
                       <div className="flex items-start gap-3">
                         <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-coral-500 to-coral-700 rounded-lg flex items-center justify-center shadow-sm">
                           <span className="text-sm font-bold text-white">

@@ -17,6 +17,8 @@ export type Lead = {
   notes: string;
   /** Agent or owner id for team view and per-agent metrics. */
   ownerId: string;
+  /** Human-readable agent name displayed in the UI and used for filtering. */
+  owner: string;
 };
 
 export type DashboardStats = {

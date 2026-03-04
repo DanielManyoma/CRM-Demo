@@ -1,7 +1,22 @@
 import { Lead } from './types';
 
+/*
+ * Owner mapping
+ *   agent-1 → Marcus Reid   (senior agent, 7 leads)
+ *   agent-2 → Priya Nair    (mid-level agent, 5 leads)
+ *   agent-3 → Jordan Cross  (new agent, 3 leads)
+ *
+ * lastContact dates are relative to today (Feb 27, 2026):
+ *   Feb 26–27 → contacted yesterday / today (fresh)
+ *   Feb 22–25 → 2–5 days ago (within SLA)
+ *   Feb 17–21 → 6–10 days ago (approaching overdue)
+ *   Feb 10–16 → 11–17 days ago (overdue)
+ *   Jan–Feb   → 18+ days ago (significantly overdue)
+ */
+
 export const mockLeads: Lead[] = [
   {
+    // High-value negotiation — overdue, needs attention today
     id: 'L-001',
     companyName: 'Acme Corporation',
     contactName: 'Sarah Johnson',
@@ -10,13 +25,15 @@ export const mockLeads: Lead[] = [
     status: 'qualified',
     source: 'linkedin',
     value: 45000,
-    lastContact: new Date('2026-01-28'),
+    lastContact: new Date('2026-02-10'),
     createdAt: new Date('2026-01-15'),
     priority: 'high',
     notes: 'Interested in enterprise plan. Budget approved for Q1.',
     ownerId: 'agent-1',
+    owner: 'Marcus Reid',
   },
   {
+    // Proposal stage, high value — contacted 5 days ago, approaching overdue
     id: 'L-002',
     companyName: 'TechStart Inc',
     contactName: 'Michael Chen',
@@ -25,13 +42,15 @@ export const mockLeads: Lead[] = [
     status: 'proposal',
     source: 'website',
     value: 78000,
-    lastContact: new Date('2026-01-29'),
+    lastContact: new Date('2026-02-22'),
     createdAt: new Date('2026-01-10'),
     priority: 'high',
     notes: 'Requested custom pricing. Decision maker meeting scheduled.',
     ownerId: 'agent-1',
+    owner: 'Marcus Reid',
   },
   {
+    // Negotiation, highest value — contacted yesterday, healthy
     id: 'L-003',
     companyName: 'Global Solutions Ltd',
     contactName: 'Emma Williams',
@@ -40,13 +59,15 @@ export const mockLeads: Lead[] = [
     status: 'negotiation',
     source: 'referral',
     value: 125000,
-    lastContact: new Date('2026-01-30'),
+    lastContact: new Date('2026-02-26'),
     createdAt: new Date('2025-12-20'),
     priority: 'high',
     notes: 'Contract review in progress. Negotiating implementation timeline.',
     ownerId: 'agent-1',
+    owner: 'Marcus Reid',
   },
   {
+    // Early-stage, medium priority — significantly overdue (17 days)
     id: 'L-004',
     companyName: 'Innovate Labs',
     contactName: 'David Park',
@@ -55,13 +76,15 @@ export const mockLeads: Lead[] = [
     status: 'contacted',
     source: 'cold-outreach',
     value: 32000,
-    lastContact: new Date('2026-01-27'),
+    lastContact: new Date('2026-02-10'),
     createdAt: new Date('2026-01-22'),
     priority: 'medium',
     notes: 'Initial call completed. Sent product overview.',
-    ownerId: 'agent-1',
+    ownerId: 'agent-2',
+    owner: 'Priya Nair',
   },
   {
+    // Closed-won — last contact at signing, no action needed
     id: 'L-005',
     companyName: 'Enterprise Dynamics',
     contactName: 'Lisa Martinez',
@@ -70,13 +93,15 @@ export const mockLeads: Lead[] = [
     status: 'closed-won',
     source: 'partner',
     value: 95000,
-    lastContact: new Date('2026-01-25'),
+    lastContact: new Date('2026-02-01'),
     createdAt: new Date('2025-12-01'),
     priority: 'high',
     notes: 'Deal closed. Onboarding starts Feb 1.',
     ownerId: 'agent-1',
+    owner: 'Marcus Reid',
   },
   {
+    // New inbound — contacted today, no follow-up due yet
     id: 'L-006',
     companyName: 'Velocity Systems',
     contactName: 'James Wilson',
@@ -85,13 +110,15 @@ export const mockLeads: Lead[] = [
     status: 'new',
     source: 'website',
     value: 28000,
-    lastContact: new Date('2026-01-30'),
-    createdAt: new Date('2026-01-30'),
+    lastContact: new Date('2026-02-27'),
+    createdAt: new Date('2026-02-27'),
     priority: 'medium',
     notes: 'Just filled out contact form. Needs follow-up call.',
-    ownerId: 'agent-2',
+    ownerId: 'agent-3',
+    owner: 'Jordan Cross',
   },
   {
+    // Qualified, high value — 8 days since last contact, approaching overdue
     id: 'L-007',
     companyName: 'CloudFirst Technologies',
     contactName: 'Rachel Green',
@@ -100,13 +127,15 @@ export const mockLeads: Lead[] = [
     status: 'qualified',
     source: 'event',
     value: 56000,
-    lastContact: new Date('2026-01-29'),
+    lastContact: new Date('2026-02-19'),
     createdAt: new Date('2026-01-18'),
     priority: 'high',
     notes: 'Met at SaaS Summit. Strong interest in platform integration.',
     ownerId: 'agent-2',
+    owner: 'Priya Nair',
   },
   {
+    // Contacted, medium — 14 days overdue, at-risk of going cold
     id: 'L-008',
     companyName: 'Nexus Group',
     contactName: 'Tom Anderson',
@@ -115,13 +144,15 @@ export const mockLeads: Lead[] = [
     status: 'contacted',
     source: 'linkedin',
     value: 41000,
-    lastContact: new Date('2026-01-26'),
+    lastContact: new Date('2026-02-13'),
     createdAt: new Date('2026-01-20'),
     priority: 'medium',
     notes: 'Discovery call scheduled for Feb 3.',
-    ownerId: 'agent-2',
+    ownerId: 'agent-3',
+    owner: 'Jordan Cross',
   },
   {
+    // Closed-lost — low priority, kept for conversion rate accuracy
     id: 'L-009',
     companyName: 'Prime Innovations',
     contactName: 'Sophie Turner',
@@ -130,13 +161,15 @@ export const mockLeads: Lead[] = [
     status: 'closed-lost',
     source: 'cold-outreach',
     value: 38000,
-    lastContact: new Date('2026-01-24'),
+    lastContact: new Date('2026-01-28'),
     createdAt: new Date('2025-12-15'),
     priority: 'low',
     notes: 'Went with competitor. Price was main factor.',
     ownerId: 'agent-2',
+    owner: 'Priya Nair',
   },
   {
+    // Proposal, high value — contacted 3 days ago, on the boundary
     id: 'L-010',
     companyName: 'DataWise Corp',
     contactName: 'Kevin Brown',
@@ -145,13 +178,15 @@ export const mockLeads: Lead[] = [
     status: 'proposal',
     source: 'referral',
     value: 67000,
-    lastContact: new Date('2026-01-29'),
+    lastContact: new Date('2026-02-24'),
     createdAt: new Date('2026-01-12'),
     priority: 'high',
     notes: 'Proposal sent. Waiting for internal review.',
-    ownerId: 'agent-2',
+    ownerId: 'agent-1',
+    owner: 'Marcus Reid',
   },
   {
+    // New inbound, low priority — contacted today, no urgency
     id: 'L-011',
     companyName: 'Stellar Industries',
     contactName: 'Anna Davis',
@@ -160,13 +195,15 @@ export const mockLeads: Lead[] = [
     status: 'new',
     source: 'website',
     value: 22000,
-    lastContact: new Date('2026-01-30'),
-    createdAt: new Date('2026-01-30'),
+    lastContact: new Date('2026-02-27'),
+    createdAt: new Date('2026-02-27'),
     priority: 'low',
     notes: 'Downloaded whitepaper. Potential small business customer.',
-    ownerId: 'agent-1',
+    ownerId: 'agent-3',
+    owner: 'Jordan Cross',
   },
   {
+    // Qualified, highest-priority new entry — 11 days overdue, high risk
     id: 'L-012',
     companyName: 'Quantum Ventures',
     contactName: 'Robert Lee',
@@ -175,13 +212,15 @@ export const mockLeads: Lead[] = [
     status: 'qualified',
     source: 'partner',
     value: 89000,
-    lastContact: new Date('2026-01-28'),
+    lastContact: new Date('2026-02-16'),
     createdAt: new Date('2026-01-14'),
     priority: 'high',
     notes: 'Partner referral. Needs multi-year contract.',
     ownerId: 'agent-1',
+    owner: 'Marcus Reid',
   },
   {
+    // Negotiation, high value — contacted 2 days ago, healthy
     id: 'L-013',
     companyName: 'Apex Solutions',
     contactName: 'Jennifer White',
@@ -190,13 +229,15 @@ export const mockLeads: Lead[] = [
     status: 'negotiation',
     source: 'event',
     value: 103000,
-    lastContact: new Date('2026-01-29'),
+    lastContact: new Date('2026-02-25'),
     createdAt: new Date('2026-01-05'),
     priority: 'high',
     notes: 'Legal reviewing terms. Close expected in 2 weeks.',
     ownerId: 'agent-1',
+    owner: 'Marcus Reid',
   },
   {
+    // Contacted, medium — 20 days overdue, significantly at-risk
     id: 'L-014',
     companyName: 'Fusion Digital',
     contactName: 'Chris Martinez',
@@ -205,13 +246,15 @@ export const mockLeads: Lead[] = [
     status: 'contacted',
     source: 'linkedin',
     value: 35000,
-    lastContact: new Date('2026-01-25'),
+    lastContact: new Date('2026-02-07'),
     createdAt: new Date('2026-01-19'),
     priority: 'medium',
     notes: 'Initial outreach positive. Demo requested.',
     ownerId: 'agent-2',
+    owner: 'Priya Nair',
   },
   {
+    // Closed-won — last contact at close, healthy conversion record
     id: 'L-015',
     companyName: 'Horizon Enterprises',
     contactName: 'Monica Taylor',
@@ -220,10 +263,11 @@ export const mockLeads: Lead[] = [
     status: 'closed-won',
     source: 'referral',
     value: 72000,
-    lastContact: new Date('2026-01-23'),
+    lastContact: new Date('2026-02-03'),
     createdAt: new Date('2025-11-28'),
     priority: 'high',
     notes: 'Successfully closed. Implementation in progress.',
     ownerId: 'agent-2',
+    owner: 'Priya Nair',
   },
 ];

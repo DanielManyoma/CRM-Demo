@@ -75,6 +75,7 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
       priority: form.priority,
       notes: form.notes.trim(),
       ownerId: 'agent-1',
+      owner: 'Marcus Reid',
     };
     onSave(lead);
     setForm(defaultForm);

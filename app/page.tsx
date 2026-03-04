@@ -5,17 +5,237 @@ import { DashboardCharts } from '@/components/dashboard-charts';
 import { StatCard } from '@/components/stat-card';
 import { StatCardSkeleton } from '@/components/states/stat-card-skeleton';
 import { DashboardEmpty } from '@/components/states/dashboard-empty';
-import { Users, TrendingUp, DollarSign, Target, CheckCircle, Clock, Settings, CalendarCheck, AlertTriangle } from 'lucide-react';
-import { useLeads } from '@/components/leads-provider';
 import {
-  getLeadsNeedingFollowUp,
-  sortLeadsByPriority,
-  getLeadsStaleNoMovement,
-  getHighValueNoRecentContact,
-} from '@/lib/prioritization';
-import { computeDashboardStats, computePipelineStages } from '@/lib/metrics';
+  Users, TrendingUp, DollarSign, Target, Settings,
+  CalendarCheck, AlertTriangle, Clock, Zap, ChevronRight,
+} from 'lucide-react';
+import { useLeads } from '@/hooks/useLeads';
+import { getLeadsStaleNoMovement, getHighValueNoRecentContact } from '@/lib/metrics';
+import {
+  computeDashboardStats,
+  computePipelineStages,
+  getFollowUpDueLeads,
+  getNextBestActions,
+} from '@/lib/metrics';
+import type { Lead } from '@/lib/types';
 import Link from 'next/link';
 import { useState } from 'react';
+
+// ─── Status badge config (matches VISUAL_STANCE.md color system) ─────────────
+
+const STATUS_COLORS: Record<string, string> = {
+  new:          'bg-slate-100  text-slate-800  border-slate-300',
+  contacted:    'bg-amber-100  text-amber-900  border-amber-300',
+  qualified:    'bg-cyan-100   text-cyan-900   border-cyan-400',
+  proposal:     'bg-indigo-100 text-indigo-900 border-indigo-400',
+  negotiation:  'bg-violet-100 text-violet-900 border-violet-400',
+  'closed-won': 'bg-emerald-100 text-emerald-900 border-emerald-400',
+  'closed-lost':'bg-rose-100   text-rose-900   border-rose-300',
+};
+
+const PRIORITY_COLORS: Record<string, string> = {
+  high:   'bg-coral-50  text-coral-700  border-coral-200',
+  medium: 'bg-amber-50  text-amber-700  border-amber-200',
+  low:    'bg-slate-100 text-slate-600  border-slate-200',
+};
+
+function daysSince(date: Date | string): number {
+  const d = date instanceof Date ? date : new Date(date);
+  return Math.floor((Date.now() - d.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+// ─── FollowUpToday ────────────────────────────────────────────────────────────
+
+function FollowUpToday({ leads }: { leads: Lead[] }) {
+  const due = getFollowUpDueLeads(leads);
+  const top3 = due.slice(0, 3);
+
+  return (
+    <section className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm overflow-hidden mb-6">
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-coral-50 flex items-center justify-center">
+            <CalendarCheck className="w-4 h-4 text-coral-600" />
+          </div>
+          <div>
+            <h2 className="text-base font-bold text-[var(--text-primary)]">Follow up today</h2>
+            <p className="text-xs font-medium text-[var(--text-secondary)]">
+              High-priority leads not contacted in 3+ days
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          {due.length > 0 && (
+            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-coral-600 text-white text-xs font-bold">
+              {due.length}
+            </span>
+          )}
+          <Link
+            href="/leads?followUp=true"
+            className="text-sm font-bold text-coral-600 hover:text-coral-700 hover:underline transition-colors"
+          >
+            View all →
+          </Link>
+        </div>
+      </div>
+
+      {/* Lead rows */}
+      {top3.length === 0 ? (
+        <div className="px-6 py-8 text-center">
+          <p className="text-sm font-medium text-[var(--text-secondary)]">
+            No high-priority leads overdue right now. Great work.
+          </p>
+        </div>
+      ) : (
+        <ul className="divide-y divide-[var(--border)]">
+          {top3.map((lead) => {
+            const overdue = daysSince(lead.lastContact);
+            return (
+              <li key={lead.id}>
+                <Link
+                  href={`/leads?lead=${lead.id}`}
+                  className="grid grid-cols-[minmax(0,1fr)_auto] md:grid-cols-[minmax(0,1fr)_6rem_7rem_7rem] items-center gap-x-4 gap-y-1 px-6 py-4 hover:bg-slate-50 dark:hover:bg-[var(--border)]/20 transition-colors group"
+                >
+                  {/* Name + contact */}
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-[var(--text-primary)] truncate group-hover:text-coral-600 transition-colors">
+                      {lead.companyName}
+                    </p>
+                    <p className="text-xs font-medium text-[var(--text-secondary)] truncate">
+                      {lead.contactName} · {lead.owner}
+                    </p>
+                  </div>
+
+                  {/* Overdue badge */}
+                  <div className="hidden md:flex justify-end">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-coral-50 text-coral-700 border border-coral-200">
+                      <Clock className="w-3 h-3" />
+                      {overdue}d ago
+                    </span>
+                  </div>
+
+                  {/* Deal value */}
+                  <div className="hidden md:block text-right">
+                    <p className="text-sm font-bold text-[var(--text-primary)]">
+                      ${(lead.value / 1000).toFixed(0)}k
+                    </p>
+                  </div>
+
+                  {/* Status badge */}
+                  <div className="hidden md:flex justify-end">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${STATUS_COLORS[lead.status] ?? ''}`}>
+                      {lead.status.replace('-', ' ')}
+                    </span>
+                  </div>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {due.length > 3 && (
+        <div className="px-6 py-3 border-t border-[var(--border)] bg-slate-50 dark:bg-[var(--border)]/10">
+          <Link
+            href="/leads?followUp=true"
+            className="flex items-center gap-1 text-xs font-bold text-coral-600 hover:underline"
+          >
+            <ChevronRight className="w-3.5 h-3.5" />
+            {due.length - 3} more lead{due.length - 3 !== 1 ? 's' : ''} need follow-up
+          </Link>
+        </div>
+      )}
+    </section>
+  );
+}
+
+// ─── NextBestActions ──────────────────────────────────────────────────────────
+
+function NextBestActions({ leads }: { leads: Lead[] }) {
+  const actions = getNextBestActions(leads, 5);
+
+  return (
+    <section className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+            <Zap className="w-4 h-4 text-slate-600" />
+          </div>
+          <div>
+            <h2 className="text-base font-bold text-[var(--text-primary)]">Next best actions</h2>
+            <p className="text-xs font-medium text-[var(--text-secondary)]">
+              Top 5 leads ranked by priority + recency
+            </p>
+          </div>
+        </div>
+        <Link
+          href="/leads"
+          className="text-sm font-bold text-coral-600 hover:text-coral-700 hover:underline transition-colors"
+        >
+          View all leads →
+        </Link>
+      </div>
+
+      {/* Lead rows */}
+      {actions.length === 0 ? (
+        <div className="px-6 py-8 text-center">
+          <p className="text-sm font-medium text-[var(--text-secondary)]">No active leads to prioritise.</p>
+        </div>
+      ) : (
+        <ul className="divide-y divide-[var(--border)]">
+          {actions.map((lead, i) => {
+            const overdue = daysSince(lead.lastContact);
+            return (
+              <li key={lead.id}>
+                <Link
+                  href={`/leads?lead=${lead.id}`}
+                  className="grid grid-cols-[2rem_minmax(0,1fr)_auto] md:grid-cols-[2rem_minmax(0,1fr)_6rem_5.5rem_7rem] items-center gap-x-4 gap-y-1 px-6 py-3.5 hover:bg-slate-50 dark:hover:bg-[var(--border)]/20 transition-colors group"
+                >
+                  {/* Rank */}
+                  <span className="text-xs font-bold text-slate-400 tabular-nums">#{i + 1}</span>
+
+                  {/* Name + owner */}
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-[var(--text-primary)] truncate group-hover:text-coral-600 transition-colors">
+                      {lead.companyName}
+                    </p>
+                    <p className="text-xs font-medium text-[var(--text-secondary)] truncate">
+                      {lead.contactName} · {lead.owner}
+                    </p>
+                  </div>
+
+                  {/* Priority */}
+                  <div className="hidden md:flex justify-end">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold border ${PRIORITY_COLORS[lead.priority] ?? ''}`}>
+                      {lead.priority}
+                    </span>
+                  </div>
+
+                  {/* Value */}
+                  <div className="hidden md:block text-right">
+                    <p className="text-sm font-bold text-[var(--text-primary)]">
+                      ${(lead.value / 1000).toFixed(0)}k
+                    </p>
+                    <p className="text-xs text-slate-400 font-medium">{overdue}d ago</p>
+                  </div>
+
+                  {/* Status */}
+                  <div className="hidden md:flex justify-end">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${STATUS_COLORS[lead.status] ?? ''}`}>
+                      {lead.status.replace('-', ' ')}
+                    </span>
+                  </div>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
+  );
+}
 
 type ViewState = 'normal' | 'loading' | 'empty';
 
@@ -23,14 +243,12 @@ export default function DashboardPage() {
   const [viewState, setViewState] = useState<ViewState>('normal');
   const { leads: storedLeads } = useLeads();
   const leads = viewState === 'empty' ? [] : storedLeads;
-  const followUpLeads = getLeadsNeedingFollowUp(leads);
-  const followUpCount = followUpLeads.length;
+
+  // Stat card count — same function used by FollowUpToday section below
+  const followUpCount = getFollowUpDueLeads(leads).length;
 
   const stats = computeDashboardStats(leads);
   const { totalLeads, newLeads, qualifiedLeads, proposalStage, wonDeals, totalValue, avgDealSize, conversionRate } = stats;
-
-  const activeLeads = leads.filter((l) => l.status !== 'closed-won' && l.status !== 'closed-lost');
-  const nextBestActions = sortLeadsByPriority(activeLeads).slice(0, 5);
 
   const staleLeads = getLeadsStaleNoMovement(leads);
   const highValueNoContact = getHighValueNoRecentContact(leads);
@@ -175,95 +393,37 @@ export default function DashboardPage() {
             {/* Charts — client-only to avoid Recharts SSR issues */}
             <DashboardCharts pipelineStages={pipelineStages} />
 
-            {/* Next best actions */}
+            {/* Decision-support sections: Follow Up Today + Next Best Actions */}
             {viewState === 'loading' ? (
-              <div className="bg-[var(--surface)] rounded-lg border border-[var(--border)] shadow-sm">
-                <div className="px-6 py-4 border-b border-[var(--border)]">
-                  <div className="h-6 w-32 bg-slate-200 rounded animate-pulse" />
-                </div>
-                <div className="divide-y divide-[var(--border)]">
-                  {[...Array(5)].map((_, i) => (
-                    <div key={i} className="px-6 py-4 animate-pulse">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3 flex-1">
-                          <div className="w-5 h-5 bg-slate-100 rounded-full" />
-                          <div className="space-y-2 flex-1">
-                            <div className="h-3.5 w-40 bg-slate-200 rounded" />
+              /* Skeleton for both decision sections */
+              <div className="space-y-6">
+                {[0, 1].map((s) => (
+                  <div key={s} className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm">
+                    <div className="px-6 py-4 border-b border-[var(--border)]">
+                      <div className="h-5 w-40 bg-slate-200 rounded animate-pulse" />
+                    </div>
+                    <div className="divide-y divide-[var(--border)]">
+                      {[...Array(3)].map((_, i) => (
+                        <div key={i} className="px-6 py-4 animate-pulse flex items-center gap-4">
+                          <div className="h-4 w-4 bg-slate-200 rounded-full flex-shrink-0" />
+                          <div className="flex-1 space-y-2">
+                            <div className="h-3.5 w-44 bg-slate-200 rounded" />
                             <div className="h-3 w-32 bg-slate-100 rounded" />
                           </div>
+                          <div className="hidden md:block h-5 w-14 bg-slate-100 rounded-full" />
+                          <div className="hidden md:block h-5 w-10 bg-slate-200 rounded" />
+                          <div className="hidden md:block h-5 w-20 bg-slate-100 rounded-full" />
                         </div>
-                        <div className="flex items-center gap-4">
-                          <div className="space-y-2">
-                            <div className="h-3.5 w-16 bg-slate-200 rounded" />
-                            <div className="h-2.5 w-20 bg-slate-100 rounded" />
-                          </div>
-                          <div className="h-6 w-20 bg-slate-100 rounded-full" />
-                        </div>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
             ) : (
-              <div className="bg-[var(--surface)] rounded-lg border border-[var(--border)] shadow-sm">
-          <div className="px-6 py-4 border-b border-[var(--border)]">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-[var(--text-primary)]">Next best actions</h2>
-              <Link
-                href="/leads?followUp=true"
-                className="text-sm font-bold text-coral-600 hover:text-coral-700 hover:underline transition-colors"
-              >
-                View follow-up list →
-              </Link>
-            </div>
-          </div>
-          {/* Column-based layout: same grid template for every row */}
-          <div className="divide-y divide-[var(--border)]">
-            {nextBestActions.map((lead) => (
-              <div
-                key={lead.id}
-                className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_5rem_6.5rem_6.5rem] items-center gap-x-6 gap-y-1 px-6 py-4 hover:bg-[var(--border)]/30 transition-colors"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="flex-shrink-0">
-                    {lead.status === 'closed-won' ? (
-                      <CheckCircle className="w-5 h-5 text-emerald-600" />
-                    ) : (
-                      <Clock className="w-5 h-5 text-slate-400" />
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-bold text-[var(--text-primary)] truncate">
-                          {lead.companyName}
-                        </p>
-                    <p className="text-sm text-[var(--text-secondary)] font-medium truncate">{lead.contactName}</p>
-                  </div>
-                </div>
-                <div className="text-right text-sm font-bold text-[var(--text-primary)]">
-                  ${(lead.value / 1000).toFixed(0)}k
-                </div>
-                <div className="text-right text-xs font-medium text-[var(--text-secondary)]">
-                  {new Date(lead.lastContact).toLocaleDateString()}
-                </div>
-                <div className="flex justify-end">
-                  <span
-                    className={`
-                      inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border whitespace-nowrap
-                      ${lead.status === 'closed-won' && 'bg-emerald-100 text-emerald-900 border-emerald-400'}
-                      ${lead.status === 'negotiation' && 'bg-violet-100 text-violet-900 border-violet-400'}
-                      ${lead.status === 'proposal' && 'bg-indigo-100 text-indigo-900 border-indigo-400'}
-                      ${lead.status === 'qualified' && 'bg-cyan-100 text-cyan-900 border-cyan-400'}
-                      ${lead.status === 'contacted' && 'bg-amber-100 text-amber-900 border-amber-300'}
-                      ${lead.status === 'new' && 'bg-slate-100 text-slate-800 border-slate-300'}
-                    `}
-                  >
-                    {lead.status.replace('-', ' ')}
-                  </span>
-                </div>
+              <div className="space-y-6">
+                <FollowUpToday leads={leads} />
+                <NextBestActions leads={leads} />
               </div>
-            ))}
-          </div>
-        </div>
             )}
           </>
         )}

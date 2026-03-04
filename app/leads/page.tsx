@@ -3,17 +3,18 @@
 import { CRMLayout } from '@/components/crm-layout';
 import { LeadsTable } from '@/components/leads-table';
 import { AddLeadModal } from '@/components/add-lead-modal';
-import { useLeads } from '@/components/leads-provider';
+import { useLeads } from '@/hooks/useLeads';
 import {
   getLeadsNeedingFollowUp,
   getLeadsStaleNoMovement,
   getHighValueNoRecentContact,
   sortLeadsByPriority,
-} from '@/lib/prioritization';
+} from '@/lib/metrics';
 import type { Lead } from '@/lib/types';
-import { Plus, Download, Settings } from 'lucide-react';
+import { Plus, Download, Settings, ArrowLeft } from 'lucide-react';
 import { useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 
 type ViewState = 'normal' | 'loading' | 'empty' | 'error';
 
@@ -22,15 +23,16 @@ function LeadsPageContent() {
   const followUpFilter = searchParams.get('followUp') === 'true';
   const riskFilter = searchParams.get('risk'); // 'stale' | 'highValue'
   const ownerFilter = searchParams.get('owner'); // agent id from team view
+  const highlightLeadId = searchParams.get('lead') ?? undefined; // single-lead deep-link
 
   const [viewState, setViewState] = useState<ViewState>('normal');
-  const { leads, setLeads } = useLeads();
+  const { leads, addLead } = useLeads();
   const [showAddLead, setShowAddLead] = useState(false);
 
   const handleAddLead = () => setShowAddLead(true);
 
   const handleSaveNewLead = (lead: Lead) => {
-    setLeads((prev) => [...prev, lead]);
+    addLead(lead);
     setShowAddLead(false);
     if (viewState === 'empty') setViewState('normal');
   };
@@ -54,6 +56,17 @@ function LeadsPageContent() {
     if (riskFilter === 'highValue' && data.length > 0) return sortLeadsByPriority(getHighValueNoRecentContact(data));
     return data;
   }, [followUpFilter, riskFilter, ownerFilter, leads, viewState]);
+
+  // If a specific lead is deep-linked but the active filters hide it, warn the user.
+  const highlightedLeadName = useMemo(() => {
+    if (!highlightLeadId) return null;
+    return leads.find((l) => l.id === highlightLeadId)?.companyName ?? null;
+  }, [highlightLeadId, leads]);
+
+  const isHighlightedLeadFiltered =
+    highlightLeadId != null &&
+    highlightedLeadName != null &&
+    !displayedLeads.some((l) => l.id === highlightLeadId);
 
   return (
     <CRMLayout>
@@ -127,6 +140,28 @@ function LeadsPageContent() {
           </div>
         </div>
 
+        {/* Deep-link banner: shown when the target lead is hidden by an active filter */}
+        {isHighlightedLeadFiltered && (
+          <div className="mb-4 flex items-start gap-3 rounded-lg border border-coral-200 bg-coral-50 px-4 py-3">
+            <span className="mt-0.5 h-2 w-2 flex-shrink-0 rounded-full bg-coral-500" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-coral-900">
+                &ldquo;{highlightedLeadName}&rdquo; is not visible with the current filter.
+              </p>
+              <p className="text-xs font-medium text-coral-700 mt-0.5">
+                Clear the active filter to see and highlight this lead.
+              </p>
+            </div>
+            <Link
+              href={`/leads?lead=${highlightLeadId}`}
+              className="flex-shrink-0 inline-flex items-center gap-1 text-xs font-bold text-coral-700 hover:text-coral-900 hover:underline transition-colors"
+            >
+              <ArrowLeft className="w-3 h-3" />
+              Clear filter
+            </Link>
+          </div>
+        )}
+
         {/* Filter hint */}
         {followUpFilter && (
           <p className="mb-4 text-sm text-[var(--text-secondary)] font-medium">
@@ -145,7 +180,8 @@ function LeadsPageContent() {
         )}
         {ownerFilter && (
           <p className="mb-4 text-sm text-[var(--text-secondary)] font-medium">
-            Showing leads for {ownerFilter === 'agent-1' ? 'Agent 1' : ownerFilter === 'agent-2' ? 'Agent 2' : ownerFilter}.
+            Showing leads for{' '}
+            {leads.find((l) => l.ownerId === ownerFilter)?.owner ?? ownerFilter}.
           </p>
         )}
 
@@ -156,6 +192,7 @@ function LeadsPageContent() {
           error={viewState === 'error' ? 'Unable to fetch leads from the server. Please check your connection and try again.' : null}
           onAddLead={handleAddLead}
           onRetry={handleRetry}
+          highlightLeadId={isHighlightedLeadFiltered ? undefined : highlightLeadId}
         />
 
         <AddLeadModal
