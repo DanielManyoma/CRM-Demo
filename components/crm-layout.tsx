@@ -23,7 +23,7 @@ export function CRMLayout({ children }: { children: React.ReactNode }) {
         <div className="flex flex-col h-full">
           {/* Header: logo + theme toggle */}
           <div className="flex items-center justify-between gap-2 h-16 px-4 border-b border-[var(--border)]">
-            <h1 className="text-xl font-bold text-[var(--text-primary)] truncate">Generic CRM</h1>
+            <h1 className="text-xl font-bold text-[var(--text-primary)] truncate">Signal CRM</h1>
             <ThemeToggle />
           </div>
 

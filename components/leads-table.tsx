@@ -1,7 +1,7 @@
 'use client';
 
 import { Lead, LeadStatus } from '@/lib/types';
-import { ArrowUpDown, Mail, Phone, MoreHorizontal, Eye, Edit2, AlertCircle, ChevronDown, Filter } from 'lucide-react';
+import { ArrowUpDown, Mail, Phone, MoreHorizontal, Eye, Edit2, ChevronDown, Filter } from 'lucide-react';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { TableSkeleton } from './states/table-skeleton';
 import { EmptyState } from './states/empty-state';
@@ -22,13 +22,13 @@ type SortField = 'companyName' | 'status' | 'value' | 'lastContact' | 'priority'
 type SortDirection = 'asc' | 'desc';
 
 const statusConfig: Record<LeadStatus, { label: string; colors: string }> = {
-  'new': { label: 'New', colors: 'bg-slate-100 text-slate-800 border-slate-300' },
-  'contacted': { label: 'Contacted', colors: 'bg-amber-100 text-amber-900 border-amber-300' },
-  'qualified': { label: 'Qualified', colors: 'bg-cyan-100 text-cyan-900 border-cyan-400' },
-  'proposal': { label: 'Proposal', colors: 'bg-indigo-100 text-indigo-900 border-indigo-400' },
-  'negotiation': { label: 'Negotiation', colors: 'bg-violet-100 text-violet-900 border-violet-400' },
-  'closed-won': { label: 'Won', colors: 'bg-emerald-100 text-emerald-900 border-emerald-400' },
-  'closed-lost': { label: 'Lost', colors: 'bg-rose-100 text-rose-900 border-rose-300' },
+  'new':         { label: 'New',         colors: 'bg-[#DDE7E8] text-slate-800' },
+  'contacted':   { label: 'Contacted',   colors: 'bg-[#C9F4F9] text-slate-800' },
+  'qualified':   { label: 'Qualified',   colors: 'bg-[#DBD9F0] text-slate-800' },
+  'proposal':    { label: 'Proposal',    colors: 'bg-[#8ECED5] text-slate-800' },
+  'negotiation': { label: 'Negotiation', colors: 'bg-[#FFDA90] text-slate-800' },
+  'closed-won':  { label: 'Won',         colors: 'bg-emerald-100 text-emerald-900' },
+  'closed-lost': { label: 'Lost',        colors: 'bg-rose-100 text-rose-900' },
 };
 
 const priorityConfig = {
@@ -306,13 +306,16 @@ export function LeadsTable({ leads, isLoading = false, error = null, onAddLead, 
                   <SortButton field="companyName">Lead</SortButton>
                 </th>
                 <th className="px-6 py-3.5 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
-                  <SortButton field="status">Status</SortButton>
-                </th>
-                <th className="px-6 py-3.5 text-right text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
-                  <SortButton field="value">Deal Value</SortButton>
+                  Source
                 </th>
                 <th className="px-6 py-3.5 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
-                  <SortButton field="lastContact">Activity</SortButton>
+                  <SortButton field="status">Status</SortButton>
+                </th>
+                <th className="px-6 py-3.5 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
+                  <SortButton field="value">Deal value</SortButton>
+                </th>
+                <th className="px-6 py-3.5 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
+                  <SortButton field="lastContact">Last contact</SortButton>
                 </th>
                 <th className="w-24 px-6 py-3.5"></th>
               </tr>
@@ -350,42 +353,41 @@ export function LeadsTable({ leads, isLoading = false, error = null, onAddLead, 
                             <h3 className="text-base font-bold text-[var(--text-primary)] truncate">
                               {lead.companyName}
                             </h3>
-                            {isStale && (
-                              <span title="Needs follow-up"><AlertCircle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" /></span>
-                            )}
                           </div>
                           {/* SECONDARY: Contact name - medium weight */}
                           <p className="text-sm text-[var(--text-secondary)] mt-0.5 font-medium">{lead.contactName}</p>
-                          {/* CONTEXTUAL: Source & contact info - smallest, appears on hover */}
-                          <div className="flex items-center gap-3 mt-1.5">
-                            <span className="text-xs text-slate-400 font-medium capitalize">
-                              {lead.source.replace('-', ' ')}
-                            </span>
-                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <a
-                                href={`mailto:${lead.email}`}
-                                className="text-xs text-slate-500 hover:text-coral-600 transition-colors flex items-center gap-1"
-                                title={lead.email}
-                              >
-                                <Mail className="w-3 h-3" />
-                              </a>
-                              <a
-                                href={`tel:${lead.phone}`}
-                                className="text-xs text-slate-500 hover:text-coral-600 transition-colors flex items-center gap-1"
-                                title={lead.phone}
-                              >
-                                <Phone className="w-3 h-3" />
-                              </a>
-                            </div>
+                          {/* Contact icons — appear on hover */}
+                          <div className="flex items-center gap-2 mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <a
+                              href={`mailto:${lead.email}`}
+                              className="text-xs text-slate-500 hover:text-coral-600 transition-colors flex items-center gap-1"
+                              title={lead.email}
+                            >
+                              <Mail className="w-3 h-3" />
+                            </a>
+                            <a
+                              href={`tel:${lead.phone}`}
+                              className="text-xs text-slate-500 hover:text-coral-600 transition-colors flex items-center gap-1"
+                              title={lead.phone}
+                            >
+                              <Phone className="w-3 h-3" />
+                            </a>
                           </div>
                         </div>
                       </div>
                     </td>
 
-                    {/* Status - PRIMARY INFO */}
+                    {/* Source */}
+                    <td className="px-6 py-4">
+                      <span className="text-sm text-[var(--text-secondary)] font-medium capitalize">
+                        {lead.source.replace('-', ' ')}
+                      </span>
+                    </td>
+
+                    {/* Status */}
                     <td className="px-6 py-4">
                       <span
-                        className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold border ${
+                        className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold ${
                           statusConfig[lead.status].colors
                         } shadow-sm`}
                       >
@@ -393,13 +395,10 @@ export function LeadsTable({ leads, isLoading = false, error = null, onAddLead, 
                       </span>
                     </td>
 
-                    {/* Deal Value - PRIMARY INFO */}
-                    <td className="px-6 py-4 text-right">
+                    {/* Deal Value */}
+                    <td className="px-6 py-4">
                       <p className="text-sm font-bold text-[var(--text-primary)] tabular-nums">
                         ${lead.value.toLocaleString()}
-                      </p>
-                      <p className="text-xs text-[var(--text-secondary)] mt-0.5 font-medium tabular-nums">
-                        ~${(lead.value / 12).toFixed(0)}/mo
                       </p>
                     </td>
 

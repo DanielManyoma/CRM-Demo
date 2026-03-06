@@ -8,6 +8,8 @@ import {
   getLeadsNeedingFollowUp,
   getLeadsStaleNoMovement,
   getHighValueNoRecentContact,
+  getStaledLeads,
+  getHighValueNoContactLeads,
   sortLeadsByPriority,
 } from '@/lib/metrics';
 import type { Lead } from '@/lib/types';
@@ -21,7 +23,8 @@ type ViewState = 'normal' | 'loading' | 'empty' | 'error';
 function LeadsPageContent() {
   const searchParams = useSearchParams();
   const followUpFilter = searchParams.get('followUp') === 'true';
-  const riskFilter = searchParams.get('risk'); // 'stale' | 'highValue'
+  const riskFilter = searchParams.get('risk'); // legacy: 'stale' | 'highValue'
+  const filterParam = searchParams.get('filter'); // 'stale' | 'high-value-no-contact'
   const ownerFilter = searchParams.get('owner'); // agent id from team view
   const highlightLeadId = searchParams.get('lead') ?? undefined; // single-lead deep-link
 
@@ -52,10 +55,14 @@ function LeadsPageContent() {
     if (viewState === 'empty') return [];
     if (ownerFilter) data = data.filter((l) => (l.ownerId ?? 'agent-1') === ownerFilter);
     if (followUpFilter && data.length > 0) return getLeadsNeedingFollowUp(data);
+    // New filter param (from dashboard pipeline risk links)
+    if (filterParam === 'stale' && data.length > 0) return getStaledLeads(data);
+    if (filterParam === 'high-value-no-contact' && data.length > 0) return getHighValueNoContactLeads(data);
+    // Legacy risk param (backward compat)
     if (riskFilter === 'stale' && data.length > 0) return sortLeadsByPriority(getLeadsStaleNoMovement(data));
     if (riskFilter === 'highValue' && data.length > 0) return sortLeadsByPriority(getHighValueNoRecentContact(data));
     return data;
-  }, [followUpFilter, riskFilter, ownerFilter, leads, viewState]);
+  }, [followUpFilter, filterParam, riskFilter, ownerFilter, leads, viewState]);
 
   // If a specific lead is deep-linked but the active filters hide it, warn the user.
   const highlightedLeadName = useMemo(() => {
@@ -81,50 +88,6 @@ function LeadsPageContent() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              {/* State switcher for demo */}
-              <div className="relative group">
-                <button className="inline-flex items-center px-3 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-600 bg-white hover:bg-slate-50 transition-all">
-                  <Settings className="w-3.5 h-3.5 mr-1.5" />
-                  Demo States
-                </button>
-                <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-slate-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
-                  <div className="p-1">
-                    <button
-                      onClick={() => setViewState('normal')}
-                      className={`w-full text-left px-3 py-2 text-xs font-semibold rounded transition-colors ${
-                        viewState === 'normal' ? 'bg-coral-50 text-coral-900' : 'text-slate-700 hover:bg-slate-50'
-                      }`}
-                    >
-                      Normal
-                    </button>
-                    <button
-                      onClick={() => setViewState('loading')}
-                      className={`w-full text-left px-3 py-2 text-xs font-semibold rounded transition-colors ${
-                        viewState === 'loading' ? 'bg-coral-50 text-coral-900' : 'text-slate-700 hover:bg-slate-50'
-                      }`}
-                    >
-                      Loading
-                    </button>
-                    <button
-                      onClick={() => setViewState('empty')}
-                      className={`w-full text-left px-3 py-2 text-xs font-semibold rounded transition-colors ${
-                        viewState === 'empty' ? 'bg-coral-50 text-coral-900' : 'text-slate-700 hover:bg-slate-50'
-                      }`}
-                    >
-                      Empty
-                    </button>
-                    <button
-                      onClick={() => setViewState('error')}
-                      className={`w-full text-left px-3 py-2 text-xs font-semibold rounded transition-colors ${
-                        viewState === 'error' ? 'bg-coral-50 text-coral-900' : 'text-slate-700 hover:bg-slate-50'
-                      }`}
-                    >
-                      Error
-                    </button>
-                  </div>
-                </div>
-              </div>
-
               <button className="inline-flex items-center px-4 py-2.5 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all shadow-sm">
                 <Download className="w-4 h-4 mr-2" />
                 Export
@@ -162,7 +125,47 @@ function LeadsPageContent() {
           </div>
         )}
 
-        {/* Filter hint */}
+        {/* Active filter banner — filter param (from dashboard pipeline risk links) */}
+        {filterParam === 'stale' && (
+          <div className="mb-6 flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-amber-900">
+                Showing: Stale deals — no stage movement in 14 days
+              </p>
+              <p className="text-xs text-amber-700 mt-0.5 font-medium">
+                {displayedLeads.length} deal{displayedLeads.length !== 1 ? 's' : ''} match this filter, sorted by priority.
+              </p>
+            </div>
+            <Link
+              href="/leads"
+              className="flex-shrink-0 inline-flex items-center gap-1 text-xs font-bold text-amber-700 hover:text-amber-900 hover:underline transition-colors"
+            >
+              <ArrowLeft className="w-3 h-3" />
+              Clear filter
+            </Link>
+          </div>
+        )}
+        {filterParam === 'high-value-no-contact' && (
+          <div className="mb-6 flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-amber-900">
+                Showing: High-value leads — no contact in 7+ days
+              </p>
+              <p className="text-xs text-amber-700 mt-0.5 font-medium">
+                {displayedLeads.length} lead{displayedLeads.length !== 1 ? 's' : ''} in the top 50% of deal value with no recent contact, sorted by value.
+              </p>
+            </div>
+            <Link
+              href="/leads"
+              className="flex-shrink-0 inline-flex items-center gap-1 text-xs font-bold text-amber-700 hover:text-amber-900 hover:underline transition-colors"
+            >
+              <ArrowLeft className="w-3 h-3" />
+              Clear filter
+            </Link>
+          </div>
+        )}
+
+        {/* Legacy filter hints (followUp, risk, owner params) */}
         {followUpFilter && (
           <p className="mb-4 text-sm text-[var(--text-secondary)] font-medium">
             Showing only leads that need follow-up (no contact in 7+ days), sorted by priority.
@@ -201,6 +204,55 @@ function LeadsPageContent() {
           onSave={handleSaveNewLead}
           existingLeads={leads}
         />
+      </div>
+
+      {/* Floating Demo States button — fixed bottom-right */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <div className="relative group/demo">
+          <button
+            aria-label="Demo states"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-slate-800 text-white text-xs font-semibold shadow-lg hover:bg-slate-700 transition-all focus:outline-none focus:ring-2 focus:ring-slate-600 focus:ring-offset-2"
+          >
+            <Settings className="w-3.5 h-3.5" aria-hidden="true" />
+            Demo states
+          </button>
+          <div className="absolute right-0 bottom-full mb-2 w-40 bg-white border border-slate-200 rounded-lg shadow-lg opacity-0 invisible group-hover/demo:opacity-100 group-hover/demo:visible transition-all">
+            <div className="p-1">
+              <button
+                onClick={() => setViewState('normal')}
+                className={`w-full text-left px-3 py-2 text-xs font-semibold rounded transition-colors ${
+                  viewState === 'normal' ? 'bg-coral-50 text-coral-900' : 'text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                Normal
+              </button>
+              <button
+                onClick={() => setViewState('loading')}
+                className={`w-full text-left px-3 py-2 text-xs font-semibold rounded transition-colors ${
+                  viewState === 'loading' ? 'bg-coral-50 text-coral-900' : 'text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                Loading
+              </button>
+              <button
+                onClick={() => setViewState('empty')}
+                className={`w-full text-left px-3 py-2 text-xs font-semibold rounded transition-colors ${
+                  viewState === 'empty' ? 'bg-coral-50 text-coral-900' : 'text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                Empty
+              </button>
+              <button
+                onClick={() => setViewState('error')}
+                className={`w-full text-left px-3 py-2 text-xs font-semibold rounded transition-colors ${
+                  viewState === 'error' ? 'bg-coral-50 text-coral-900' : 'text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                Error
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </CRMLayout>
   );

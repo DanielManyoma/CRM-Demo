@@ -283,3 +283,91 @@ export function getHighValueNoRecentContact(
     return l.value >= valueThreshold && daysSince >= days;
   });
 }
+
+// ─── Dashboard filter link targets ───────────────────────────────────────────
+
+/** Returns the median of a numeric array. Returns 0 for an empty array. */
+function median(values: number[]): number {
+  if (values.length === 0) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0
+    ? (sorted[mid - 1] + sorted[mid]) / 2
+    : sorted[mid];
+}
+
+/**
+ * Active leads whose last contact was 14+ days ago (stage-movement proxy).
+ * Linked from the Dashboard "X deals have not moved" signal via ?filter=stale.
+ * Excludes closed leads. Sorted by priority score descending.
+ *
+ * Note: the Lead model has no stageChangedAt field, so lastContact is the
+ * closest available signal for deal inactivity.
+ */
+export function getStaledLeads(leads: Lead[]): Lead[] {
+  return sortLeadsByPriority(getLeadsStaleNoMovement(leads));
+}
+
+/**
+ * Active leads in the top 50% of deal value (value >= median of active leads)
+ * with no contact in 7+ days.
+ * Linked from the Dashboard "X high-value leads" signal via ?filter=high-value-no-contact.
+ * Sorted by deal value descending so the highest-risk deals surface first.
+ *
+ * Using a relative threshold (median) rather than a fixed dollar amount means
+ * the filter adapts to whatever deal sizes are in this particular pipeline.
+ */
+export function getHighValueNoContactLeads(leads: Lead[]): Lead[] {
+  const active = leads.filter(
+    (l) => l.status !== 'closed-won' && l.status !== 'closed-lost'
+  );
+  if (active.length === 0) return [];
+
+  const medianValue = median(active.map((l) => l.value));
+  const now = new Date();
+
+  const result = active.filter((l) => {
+    if (l.value < medianValue) return false;
+    const last = l.lastContact instanceof Date ? l.lastContact : new Date(l.lastContact);
+    const daysSince = Math.floor((now.getTime() - last.getTime()) / (1000 * 60 * 60 * 24));
+    return daysSince >= FOLLOW_UP_DAYS_THRESHOLD;
+  });
+
+  return result.sort((a, b) => b.value - a.value);
+}
+
+// ─── Forecast inputs ──────────────────────────────────────────────────────────
+
+/**
+ * Assumed close rate per pipeline stage, used for the expected-revenue forecast.
+ * These are rule-of-thumb defaults, not derived from historical win data.
+ * Update this constant to change the forecast inputs; the calculation in
+ * lib/forecast.ts imports and uses this directly.
+ *
+ * closed-won is included for display purposes (100%) but is excluded from the
+ * revenue calculation — won deals are already realised revenue, not pipeline.
+ */
+export const STAGE_CLOSE_RATES: Record<string, number> = {
+  new:         0.05,
+  contacted:   0.15,
+  qualified:   0.30,
+  proposal:    0.50,
+  negotiation: 0.70,
+  'closed-won': 1.00,
+};
+
+/**
+ * Ordered list of stages for consistent display in the forecast breakdown UI.
+ * Drives the "How is this calculated?" table on the Team page.
+ */
+export const STAGE_CLOSE_RATE_DISPLAY_ORDER: Array<{
+  key: string;
+  label: string;
+}> = [
+  { key: 'new',         label: 'New' },
+  { key: 'contacted',   label: 'Contacted' },
+  { key: 'qualified',   label: 'Qualified' },
+  { key: 'proposal',    label: 'Proposal' },
+  { key: 'negotiation', label: 'Negotiation' },
+  { key: 'closed-won',  label: 'Closed' },
+];

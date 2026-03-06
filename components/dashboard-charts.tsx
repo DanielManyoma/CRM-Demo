@@ -70,7 +70,7 @@ export function DashboardCharts({ pipelineStages }: DashboardChartsProps) {
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
               <XAxis dataKey="stage" tick={{ fontSize: 11, fill: '#64748b' }} />
               <YAxis tick={{ fontSize: 11, fill: '#64748b' }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
-              <Bar dataKey="value" fill="#f97066" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="value" fill="#36747B" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -83,7 +83,7 @@ export function DashboardCharts({ pipelineStages }: DashboardChartsProps) {
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
               <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#64748b' }} />
               <YAxis tick={{ fontSize: 11, fill: '#64748b' }} allowDecimals={false} />
-              <Line type="monotone" dataKey="leads" stroke="#f97066" strokeWidth={2} dot={{ fill: '#f97066' }} />
+              <Line type="monotone" dataKey="leads" stroke="#36747B" strokeWidth={2} dot={{ fill: '#36747B' }} />
             </LineChart>
           </ResponsiveContainer>
         </div>

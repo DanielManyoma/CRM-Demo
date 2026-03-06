@@ -1,20 +1,10 @@
 import type { Lead } from './types';
-
-/**
- * Simple stage-based close rates (rule of thumb). Used for "expected revenue" range.
- * Only active stages; closed-won is already realized.
- */
-const STAGE_CLOSE_RATES: Record<string, number> = {
-  new: 0.05,
-  contacted: 0.1,
-  qualified: 0.2,
-  proposal: 0.35,
-  negotiation: 0.6,
-};
+import { STAGE_CLOSE_RATES } from './metrics';
 
 /**
  * Expected revenue from pipeline: sum of (stage value × stage close rate).
- * Gives a single number; team lead can treat as rough "expected" range.
+ * Close rates are defined in lib/metrics.ts as STAGE_CLOSE_RATES.
+ * Gives a single number; team lead can treat as a rough "expected" range.
  */
 export function expectedRevenueFromPipeline(leads: Lead[]): number {
   const active = leads.filter(

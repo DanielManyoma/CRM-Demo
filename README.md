@@ -1,4 +1,4 @@
-# Generic CRM - B2B Lead Management
+# Signal CRM - B2B Lead Management
 
 A modern, highly usable B2B CRM focused on lead management with exceptional UX.
 

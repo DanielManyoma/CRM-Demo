@@ -13,7 +13,7 @@ interface StatCardProps {
 
 export function StatCard({ title, value, subtitle, icon: Icon, trend }: StatCardProps) {
   return (
-    <div className="bg-[var(--surface)] rounded-lg border border-[var(--border)] p-6 shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-[var(--surface)] rounded-lg border border-[var(--border)] p-6 shadow-sm hover:shadow-md transition-shadow min-h-[180px]">
       <div className="flex flex-col gap-4">
         <div className="w-12 h-12 bg-[var(--accent-muted)] rounded-lg flex items-center justify-center flex-shrink-0">
           <Icon className="w-6 h-6 text-[var(--accent)]" />

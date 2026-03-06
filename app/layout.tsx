@@ -7,7 +7,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Generic CRM',
+  title: 'Signal CRM',
   description: 'B2B Lead Management System',
 }
 
