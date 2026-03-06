@@ -19,12 +19,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (stored === 'light' || stored === 'dark') {
       setThemeState(stored);
       document.documentElement.setAttribute('data-theme', stored);
+      document.documentElement.classList.toggle('dark', stored === 'dark');
     }
   }, []);
 
   const setTheme = (next: Theme) => {
     setThemeState(next);
     document.documentElement.setAttribute('data-theme', next);
+    document.documentElement.classList.toggle('dark', next === 'dark');
     localStorage.setItem(STORAGE_KEY, next);
   };
 

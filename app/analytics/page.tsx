@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { CRMLayout } from '@/components/crm-layout';
 import { useLeads } from '@/hooks/useLeads';
 import { computeDashboardStats } from '@/lib/metrics';
+import { useTheme } from '@/components/theme-provider';
 import type { Lead } from '@/lib/types';
 import { StatCard } from '@/components/stat-card';
 import { StatCardSkeleton } from '@/components/states/stat-card-skeleton';
@@ -140,6 +141,11 @@ export default function AnalyticsPage() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const gridColor = isDark ? '#334155' : '#e2e8f0';
+  const axisColor = isDark ? '#94a3b8' : '#64748b';
+
   const { leads: storedLeads } = useLeads();
   const leads = viewState === 'empty' ? [] : storedLeads;
 
@@ -166,14 +172,14 @@ export default function AnalyticsPage() {
         </div>
 
         {viewState === 'error' ? (
-          <div className="rounded-lg border border-rose-200 bg-rose-50 p-8 text-center">
-            <p className="text-base font-bold text-rose-900">Failed to load analytics data</p>
-            <p className="text-sm text-rose-700 mt-1">
+          <div className="rounded-lg border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/30 p-8 text-center">
+            <p className="text-base font-bold text-rose-900 dark:text-rose-300">Failed to load analytics data</p>
+            <p className="text-sm text-rose-700 dark:text-rose-400 mt-1">
               Please check your connection and try again.
             </p>
             <button
               onClick={() => setViewState('normal')}
-              className="mt-4 px-4 py-2 text-sm font-semibold text-rose-700 border border-rose-300 rounded-lg hover:bg-rose-100 transition-colors"
+              className="mt-4 px-4 py-2 text-sm font-semibold text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-rose-700 rounded-lg hover:bg-rose-100 dark:hover:bg-rose-900/30 transition-colors"
             >
               Retry
             </button>
@@ -241,10 +247,10 @@ export default function AnalyticsPage() {
                       data={weeklyData}
                       margin={{ top: 8, right: 8, left: 0, bottom: 8 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                      <XAxis dataKey="week" tick={{ fontSize: 11, fill: '#64748b' }} />
+                      <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                      <XAxis dataKey="week" tick={{ fontSize: 11, fill: axisColor }} />
                       <YAxis
-                        tick={{ fontSize: 11, fill: '#64748b' }}
+                        tick={{ fontSize: 11, fill: axisColor }}
                         tickFormatter={(v) => `${v}%`}
                       />
                       <Line
@@ -275,10 +281,10 @@ export default function AnalyticsPage() {
                       data={weeklyData}
                       margin={{ top: 8, right: 8, left: 0, bottom: 8 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                      <XAxis dataKey="week" tick={{ fontSize: 11, fill: '#64748b' }} />
+                      <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                      <XAxis dataKey="week" tick={{ fontSize: 11, fill: axisColor }} />
                       <YAxis
-                        tick={{ fontSize: 11, fill: '#64748b' }}
+                        tick={{ fontSize: 11, fill: axisColor }}
                         tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
                       />
                       <Line
@@ -307,7 +313,7 @@ export default function AnalyticsPage() {
             <Settings className="w-3.5 h-3.5" aria-hidden="true" />
             Demo states
           </button>
-          <div className="absolute right-0 bottom-full mb-2 w-40 bg-white border border-slate-200 rounded-lg shadow-lg opacity-0 invisible group-hover/demo:opacity-100 group-hover/demo:visible transition-all">
+          <div className="absolute right-0 bottom-full mb-2 w-40 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg opacity-0 invisible group-hover/demo:opacity-100 group-hover/demo:visible transition-all">
             <div className="p-1">
               {(
                 [
@@ -322,8 +328,8 @@ export default function AnalyticsPage() {
                   onClick={() => setViewState(id)}
                   className={`w-full text-left px-3 py-2 text-xs font-semibold rounded transition-colors ${
                     viewState === id
-                      ? 'bg-slate-100 text-slate-900'
-                      : 'text-slate-700 hover:bg-slate-50'
+                      ? 'bg-coral-50 text-coral-900 dark:bg-coral-900/30 dark:text-coral-300'
+                      : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
                   }`}
                 >
                   {label}

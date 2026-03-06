@@ -88,7 +88,7 @@ function LeadsPageContent() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <button className="inline-flex items-center px-4 py-2.5 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all shadow-sm">
+              <button className="inline-flex items-center px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-400 dark:hover:border-slate-500 transition-all shadow-sm">
                 <Download className="w-4 h-4 mr-2" />
                 Export
               </button>
@@ -216,12 +216,12 @@ function LeadsPageContent() {
             <Settings className="w-3.5 h-3.5" aria-hidden="true" />
             Demo states
           </button>
-          <div className="absolute right-0 bottom-full mb-2 w-40 bg-white border border-slate-200 rounded-lg shadow-lg opacity-0 invisible group-hover/demo:opacity-100 group-hover/demo:visible transition-all">
+          <div className="absolute right-0 bottom-full mb-2 w-40 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg opacity-0 invisible group-hover/demo:opacity-100 group-hover/demo:visible transition-all">
             <div className="p-1">
               <button
                 onClick={() => setViewState('normal')}
                 className={`w-full text-left px-3 py-2 text-xs font-semibold rounded transition-colors ${
-                  viewState === 'normal' ? 'bg-coral-50 text-coral-900' : 'text-slate-700 hover:bg-slate-50'
+                  viewState === 'normal' ? 'bg-coral-50 text-coral-900 dark:bg-coral-900/30 dark:text-coral-300' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
                 }`}
               >
                 Normal
@@ -229,7 +229,7 @@ function LeadsPageContent() {
               <button
                 onClick={() => setViewState('loading')}
                 className={`w-full text-left px-3 py-2 text-xs font-semibold rounded transition-colors ${
-                  viewState === 'loading' ? 'bg-coral-50 text-coral-900' : 'text-slate-700 hover:bg-slate-50'
+                  viewState === 'loading' ? 'bg-coral-50 text-coral-900 dark:bg-coral-900/30 dark:text-coral-300' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
                 }`}
               >
                 Loading
@@ -237,7 +237,7 @@ function LeadsPageContent() {
               <button
                 onClick={() => setViewState('empty')}
                 className={`w-full text-left px-3 py-2 text-xs font-semibold rounded transition-colors ${
-                  viewState === 'empty' ? 'bg-coral-50 text-coral-900' : 'text-slate-700 hover:bg-slate-50'
+                  viewState === 'empty' ? 'bg-coral-50 text-coral-900 dark:bg-coral-900/30 dark:text-coral-300' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
                 }`}
               >
                 Empty
@@ -245,7 +245,7 @@ function LeadsPageContent() {
               <button
                 onClick={() => setViewState('error')}
                 className={`w-full text-left px-3 py-2 text-xs font-semibold rounded transition-colors ${
-                  viewState === 'error' ? 'bg-coral-50 text-coral-900' : 'text-slate-700 hover:bg-slate-50'
+                  viewState === 'error' ? 'bg-coral-50 text-coral-900 dark:bg-coral-900/30 dark:text-coral-300' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
                 }`}
               >
                 Error

@@ -142,8 +142,8 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
                 type="text"
                 value={form.contactName}
                 onChange={(e) => handleChange('contactName', e.target.value)}
-                className={`w-full px-3 py-2 rounded-lg border text-slate-950 font-medium placeholder:text-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)] ${
-                  errors.contactName ? 'border-rose-400' : 'border-slate-300'
+                className={`w-full px-3 py-2 rounded-lg border bg-[var(--surface)] text-[var(--text-primary)] font-medium placeholder:text-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)] ${
+                  errors.contactName ? 'border-rose-400' : 'border-[var(--border)]'
                 }`}
                 placeholder="Jane Smith"
               />
@@ -160,8 +160,8 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
                 type="email"
                 value={form.email}
                 onChange={(e) => handleChange('email', e.target.value)}
-                className={`w-full px-3 py-2 rounded-lg border text-slate-950 font-medium placeholder:text-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)] ${
-                  errors.email ? 'border-rose-400' : 'border-slate-300'
+                className={`w-full px-3 py-2 rounded-lg border bg-[var(--surface)] text-[var(--text-primary)] font-medium placeholder:text-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)] ${
+                  errors.email ? 'border-rose-400' : 'border-[var(--border)]'
                 }`}
                 placeholder="jane@acme.com"
               />
@@ -178,8 +178,8 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
                 type="tel"
                 value={form.phone}
                 onChange={(e) => handleChange('phone', e.target.value)}
-                className={`w-full px-3 py-2 rounded-lg border text-slate-950 font-medium placeholder:text-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)] ${
-                  errors.phone ? 'border-rose-400' : 'border-slate-300'
+                className={`w-full px-3 py-2 rounded-lg border bg-[var(--surface)] text-[var(--text-primary)] font-medium placeholder:text-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)] ${
+                  errors.phone ? 'border-rose-400' : 'border-[var(--border)]'
                 }`}
                 placeholder="+1 (555) 000-0000"
               />
@@ -196,7 +196,7 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
                   id="status"
                   value={form.status}
                   onChange={(e) => handleChange('status', e.target.value as LeadStatus)}
-                  className="w-full px-3 py-2 rounded-lg border border-[var(--border)] text-[var(--text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)]"
+                  className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)]"
                 >
                   {STATUS_OPTIONS.map((s) => (
                     <option key={s} value={s}>
@@ -213,7 +213,7 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
                   id="source"
                   value={form.source}
                   onChange={(e) => handleChange('source', e.target.value as LeadSource)}
-                  className="w-full px-3 py-2 rounded-lg border border-[var(--border)] text-[var(--text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)]"
+                  className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)]"
                 >
                   {SOURCE_OPTIONS.map((s) => (
                     <option key={s} value={s}>
@@ -235,8 +235,8 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
                   step={1000}
                   value={form.value}
                   onChange={(e) => handleChange('value', e.target.value)}
-                  className={`w-full px-3 py-2 rounded-lg border text-slate-950 font-medium placeholder:text-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)] ${
-                    errors.value ? 'border-rose-400' : 'border-slate-300'
+                  className={`w-full px-3 py-2 rounded-lg border bg-[var(--surface)] text-[var(--text-primary)] font-medium placeholder:text-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)] ${
+                    errors.value ? 'border-rose-400' : 'border-[var(--border)]'
                   }`}
                   placeholder="50000"
                 />
@@ -252,7 +252,7 @@ export function AddLeadModal({ isOpen, onClose, onSave, existingLeads }: AddLead
                   id="priority"
                   value={form.priority}
                   onChange={(e) => handleChange('priority', e.target.value as 'low' | 'medium' | 'high')}
-                  className="w-full px-3 py-2 rounded-lg border border-[var(--border)] text-[var(--text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)]"
+                  className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)]"
                 >
                   {PRIORITY_OPTIONS.map((p) => (
                     <option key={p} value={p}>

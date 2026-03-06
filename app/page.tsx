@@ -23,9 +23,9 @@ import { useState } from 'react';
 
 
 const PRIORITY_COLORS: Record<string, string> = {
-  high:   'bg-coral-100  text-coral-700',
-  medium: 'bg-amber-100  text-amber-700',
-  low:    'bg-slate-100  text-slate-600',
+  high:   'bg-coral-100  text-coral-700  dark:bg-coral-900/40  dark:text-coral-300',
+  medium: 'bg-amber-100  text-amber-700  dark:bg-amber-900/40  dark:text-amber-300',
+  low:    'bg-slate-100  text-slate-600  dark:bg-slate-700     dark:text-slate-400',
 };
 
 function daysSince(date: Date | string): number {
@@ -123,10 +123,10 @@ function FollowUpToday({ due }: { due: Lead[] }) {
       )}
 
       {due.length > 3 && (
-        <div className="px-6 py-3 border-t border-[var(--border)] bg-slate-50 dark:bg-[var(--border)]/10">
+        <div className="px-6 py-3 border-t border-[var(--border)] bg-slate-50 dark:bg-slate-800">
           <Link
             href="/leads?followUp=true"
-            className="flex items-center gap-1 text-xs font-bold text-coral-600 hover:underline"
+            className="flex items-center gap-1 text-xs font-bold text-coral-600 dark:text-coral-400 hover:underline"
           >
             <ChevronRight className="w-3.5 h-3.5" />
             {due.length - 3} more lead{due.length - 3 !== 1 ? 's' : ''} need follow-up
@@ -156,8 +156,8 @@ function NextBestActions({ leads }: { leads: Lead[] }) {
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
-            <Zap className="w-4 h-4 text-slate-600" />
+          <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+            <Zap className="w-4 h-4 text-slate-600 dark:text-slate-400" />
           </div>
           <div>
             <h2 className="text-base font-bold text-[var(--text-primary)]">Next best actions</h2>
@@ -351,26 +351,26 @@ export default function DashboardPage() {
 
             {/* Pipeline risk */}
             {viewState !== 'loading' && (
-              <div className="mb-8 rounded-lg border border-amber-200 border-l-4 border-l-amber-400 bg-amber-50 shadow-sm overflow-hidden">
-                <div className="px-6 py-4 border-b border-amber-200 flex items-center gap-2">
+              <div className="mb-8 rounded-lg border border-amber-200 dark:border-amber-800/50 border-l-4 border-l-amber-400 bg-amber-50 dark:bg-amber-950/30 shadow-sm overflow-hidden">
+                <div className="px-6 py-4 border-b border-amber-200 dark:border-amber-800/50 flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5 text-amber-600" />
-                  <h2 className="text-lg font-bold text-[var(--text-primary)]">Pipeline risk</h2>
+                  <h2 className="text-lg font-bold text-[var(--text-primary)] dark:text-amber-200">Pipeline risk</h2>
                 </div>
-                <div className="divide-y divide-amber-200">
+                <div className="divide-y divide-amber-200 dark:divide-amber-800/50">
                   <Link
                     href="/leads?filter=stale"
-                    className="flex items-center justify-between px-6 py-4 hover:bg-amber-100/60 transition-colors"
+                    className="flex items-center justify-between px-6 py-4 hover:bg-amber-100/60 dark:hover:bg-amber-900/30 transition-colors"
                   >
-                    <span className="text-sm text-[var(--text-primary)] font-medium">
+                    <span className="text-sm text-[var(--text-primary)] dark:text-amber-200 font-medium">
                       {staleLeads.length} deal{staleLeads.length !== 1 ? 's' : ''} have not moved in 14 days
                     </span>
                     <span className="text-sm font-bold text-coral-600 hover:underline">View list →</span>
                   </Link>
                   <Link
                     href="/leads?filter=high-value-no-contact"
-                    className="flex items-center justify-between px-6 py-4 hover:bg-amber-100/60 transition-colors"
+                    className="flex items-center justify-between px-6 py-4 hover:bg-amber-100/60 dark:hover:bg-amber-900/30 transition-colors"
                   >
-                    <span className="text-sm text-[var(--text-primary)] font-medium">
+                    <span className="text-sm text-[var(--text-primary)] dark:text-amber-200 font-medium">
                       {highValueNoContact.length} high-value lead{highValueNoContact.length !== 1 ? 's' : ''} have no recent contact
                     </span>
                     <span className="text-sm font-bold text-coral-600 hover:underline">View list →</span>
@@ -395,12 +395,12 @@ export default function DashboardPage() {
             <Settings className="w-3.5 h-3.5" aria-hidden="true" />
             Demo states
           </button>
-          <div className="absolute right-0 bottom-full mb-2 w-40 bg-white border border-slate-200 rounded-lg shadow-lg opacity-0 invisible group-hover/demo:opacity-100 group-hover/demo:visible transition-all">
+          <div className="absolute right-0 bottom-full mb-2 w-40 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg opacity-0 invisible group-hover/demo:opacity-100 group-hover/demo:visible transition-all">
             <div className="p-1">
               <button
                 onClick={() => setViewState('normal')}
                 className={`w-full text-left px-3 py-2 text-xs font-semibold rounded transition-colors ${
-                  viewState === 'normal' ? 'bg-coral-50 text-coral-900' : 'text-slate-700 hover:bg-slate-50'
+                  viewState === 'normal' ? 'bg-coral-50 text-coral-900 dark:bg-coral-900/30 dark:text-coral-300' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
                 }`}
               >
                 Normal
@@ -408,7 +408,7 @@ export default function DashboardPage() {
               <button
                 onClick={() => setViewState('loading')}
                 className={`w-full text-left px-3 py-2 text-xs font-semibold rounded transition-colors ${
-                  viewState === 'loading' ? 'bg-coral-50 text-coral-900' : 'text-slate-700 hover:bg-slate-50'
+                  viewState === 'loading' ? 'bg-coral-50 text-coral-900 dark:bg-coral-900/30 dark:text-coral-300' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
                 }`}
               >
                 Loading
@@ -416,7 +416,7 @@ export default function DashboardPage() {
               <button
                 onClick={() => setViewState('empty')}
                 className={`w-full text-left px-3 py-2 text-xs font-semibold rounded transition-colors ${
-                  viewState === 'empty' ? 'bg-coral-50 text-coral-900' : 'text-slate-700 hover:bg-slate-50'
+                  viewState === 'empty' ? 'bg-coral-50 text-coral-900 dark:bg-coral-900/30 dark:text-coral-300' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
                 }`}
               >
                 Empty

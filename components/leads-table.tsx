@@ -22,13 +22,13 @@ type SortField = 'companyName' | 'status' | 'value' | 'lastContact' | 'priority'
 type SortDirection = 'asc' | 'desc';
 
 const statusConfig: Record<LeadStatus, { label: string; colors: string }> = {
-  'new':         { label: 'New',         colors: 'bg-[#DDE7E8] text-slate-800' },
-  'contacted':   { label: 'Contacted',   colors: 'bg-[#C9F4F9] text-slate-800' },
-  'qualified':   { label: 'Qualified',   colors: 'bg-[#DBD9F0] text-slate-800' },
-  'proposal':    { label: 'Proposal',    colors: 'bg-[#8ECED5] text-slate-800' },
-  'negotiation': { label: 'Negotiation', colors: 'bg-[#FFDA90] text-slate-800' },
-  'closed-won':  { label: 'Won',         colors: 'bg-emerald-100 text-emerald-900' },
-  'closed-lost': { label: 'Lost',        colors: 'bg-rose-100 text-rose-900' },
+  'new':         { label: 'New',         colors: 'bg-[#DDE7E8] text-slate-800 dark:bg-teal-900/60   dark:text-teal-200' },
+  'contacted':   { label: 'Contacted',   colors: 'bg-[#C9F4F9] text-slate-800 dark:bg-cyan-900/60   dark:text-cyan-200' },
+  'qualified':   { label: 'Qualified',   colors: 'bg-[#DBD9F0] text-slate-800 dark:bg-violet-900/60 dark:text-violet-200' },
+  'proposal':    { label: 'Proposal',    colors: 'bg-[#8ECED5] text-slate-800 dark:bg-teal-800/60   dark:text-teal-200' },
+  'negotiation': { label: 'Negotiation', colors: 'bg-[#FFDA90] text-slate-800 dark:bg-amber-900/60  dark:text-amber-200' },
+  'closed-won':  { label: 'Won',         colors: 'bg-emerald-100 text-emerald-900 dark:bg-emerald-900/60 dark:text-emerald-300' },
+  'closed-lost': { label: 'Lost',        colors: 'bg-rose-100    text-rose-900    dark:bg-rose-900/60    dark:text-rose-300' },
 };
 
 const priorityConfig = {
@@ -72,14 +72,14 @@ function FilterDropdown({
         onClick={onToggle}
         className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold border transition-all ${
           selectedStatuses.size > 0
-            ? 'bg-coral-50 border-coral-200 text-coral-900'
+            ? 'bg-coral-50 border-coral-200 text-coral-900 dark:bg-coral-900/30 dark:border-coral-700 dark:text-coral-300'
             : 'bg-[var(--surface)] border-[var(--border)] text-[var(--text-secondary)] hover:opacity-90'
         }`}
       >
         <Filter className="w-4 h-4" />
         Filter by status
         {selectedStatuses.size > 0 && (
-          <span className="ml-0.5 px-1.5 py-0.5 rounded-md bg-coral-200/80 text-coral-900 text-xs font-bold">
+          <span className="ml-0.5 px-1.5 py-0.5 rounded-md bg-coral-200/80 text-coral-900 dark:bg-coral-700/50 dark:text-coral-200 text-xs font-bold">
             {selectedStatuses.size}
           </span>
         )}
@@ -223,10 +223,10 @@ export function LeadsTable({ leads, isLoading = false, error = null, onAddLead, 
   const SortButton = ({ field, children }: { field: SortField; children: React.ReactNode }) => (
     <button
       onClick={() => handleSort(field)}
-      className="flex items-center gap-1 hover:text-slate-950 transition-colors group/sort"
+      className="flex items-center gap-1 hover:text-slate-950 dark:hover:text-slate-50 transition-colors group/sort"
     >
       {children}
-      <ArrowUpDown className={`w-3.5 h-3.5 transition-colors ${sortField === field ? 'text-slate-950' : 'text-slate-400 group-hover/sort:text-slate-600'}`} />
+      <ArrowUpDown className={`w-3.5 h-3.5 transition-colors ${sortField === field ? 'text-slate-950 dark:text-slate-50' : 'text-slate-400 group-hover/sort:text-slate-600 dark:group-hover/sort:text-slate-300'}`} />
     </button>
   );
 
@@ -234,9 +234,9 @@ export function LeadsTable({ leads, isLoading = false, error = null, onAddLead, 
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <div className="h-10 w-36 bg-slate-100 rounded-lg animate-pulse" />
+        <div className="h-10 w-36 bg-slate-100 dark:bg-slate-700 rounded-lg animate-pulse" />
         <TableSkeleton />
-        <div className="h-5 w-32 bg-slate-100 rounded animate-pulse" />
+        <div className="h-5 w-32 bg-slate-100 dark:bg-slate-700 rounded animate-pulse" />
       </div>
     );
   }
@@ -301,7 +301,7 @@ export function LeadsTable({ leads, isLoading = false, error = null, onAddLead, 
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-[var(--border)]/30 border-b border-[var(--border)]">
+              <tr className="bg-[var(--border)]/30 dark:bg-slate-800/80 border-b border-[var(--border)] dark:border-slate-700">
                 <th className="px-6 py-3.5 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
                   <SortButton field="companyName">Lead</SortButton>
                 </th>
@@ -320,7 +320,7 @@ export function LeadsTable({ leads, isLoading = false, error = null, onAddLead, 
                 <th className="w-24 px-6 py-3.5"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[var(--border)]">
+            <tbody className="divide-y divide-[var(--border)] dark:divide-slate-700">
               {filteredAndSortedLeads.map((lead) => {
                 const isStale = isLeadStale(lead);
                 const isTarget = lead.id === highlightLeadId;
@@ -329,10 +329,10 @@ export function LeadsTable({ leads, isLoading = false, error = null, onAddLead, 
                   <tr
                     key={lead.id}
                     ref={isTarget ? setHighlightRef : undefined}
-                    className={`transition-colors duration-700 group ${
+                    className={`transition-colors group cursor-pointer ${
                       isTarget && isHighlightActive
-                        ? 'bg-coral-50'
-                        : 'hover:bg-[var(--border)]/20'
+                        ? 'bg-coral-50 dark:bg-coral-900/20 duration-700'
+                        : 'hover:bg-slate-50 dark:hover:bg-slate-700/50 duration-100'
                     }`}
                   >
                     {/* Company & Contact - PRIMARY INFO */}
@@ -420,19 +420,19 @@ export function LeadsTable({ leads, isLoading = false, error = null, onAddLead, 
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
-                          className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-950 transition-all"
+                          className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-950 dark:hover:text-slate-50 transition-all"
                           title="View details"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
-                          className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-950 transition-all"
+                          className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-950 dark:hover:text-slate-50 transition-all"
                           title="Edit lead"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
-                          className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-950 transition-all"
+                          className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-950 dark:hover:text-slate-50 transition-all"
                           title="More actions"
                         >
                           <MoreHorizontal className="w-4 h-4" />
@@ -449,7 +449,7 @@ export function LeadsTable({ leads, isLoading = false, error = null, onAddLead, 
       </div>
 
       {/* Results count */}
-      <div className="text-sm text-[var(--text-secondary)] font-semibold">
+      <div className="text-sm text-[var(--text-secondary)] dark:text-slate-400 font-semibold">
         Showing {filteredAndSortedLeads.length} of {leads.length} leads
       </div>
     </div>

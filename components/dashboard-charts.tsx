@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTheme } from './theme-provider';
 import {
   BarChart,
   Bar,
@@ -52,6 +53,7 @@ function ChartsSkeleton() {
 
 export function DashboardCharts({ pipelineStages }: DashboardChartsProps) {
   const [mounted, setMounted] = useState(false);
+  const { theme } = useTheme();
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -60,6 +62,10 @@ export function DashboardCharts({ pipelineStages }: DashboardChartsProps) {
     return <ChartsSkeleton />;
   }
 
+  const isDark = theme === 'dark';
+  const gridColor = isDark ? '#334155' : '#e2e8f0';
+  const axisColor = isDark ? '#94a3b8' : '#64748b';
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       <div className="bg-[var(--surface)] rounded-lg border border-[var(--border)] shadow-sm p-6">
@@ -67,9 +73,9 @@ export function DashboardCharts({ pipelineStages }: DashboardChartsProps) {
         <div className="w-full h-[260px] min-h-[200px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={pipelineStages} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis dataKey="stage" tick={{ fontSize: 11, fill: '#64748b' }} />
-              <YAxis tick={{ fontSize: 11, fill: '#64748b' }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+              <XAxis dataKey="stage" tick={{ fontSize: 11, fill: axisColor }} />
+              <YAxis tick={{ fontSize: 11, fill: axisColor }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
               <Bar dataKey="value" fill="#36747B" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -80,9 +86,9 @@ export function DashboardCharts({ pipelineStages }: DashboardChartsProps) {
         <div className="w-full h-[260px] min-h-[200px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={LEADS_OVER_TIME} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#64748b' }} />
-              <YAxis tick={{ fontSize: 11, fill: '#64748b' }} allowDecimals={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+              <XAxis dataKey="date" tick={{ fontSize: 11, fill: axisColor }} />
+              <YAxis tick={{ fontSize: 11, fill: axisColor }} allowDecimals={false} />
               <Line type="monotone" dataKey="leads" stroke="#36747B" strokeWidth={2} dot={{ fill: '#36747B' }} />
             </LineChart>
           </ResponsiveContainer>

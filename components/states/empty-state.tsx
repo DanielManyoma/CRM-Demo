@@ -6,15 +6,15 @@ interface EmptyStateProps {
 
 export function EmptyState({ onAddLead }: EmptyStateProps) {
   return (
-    <div className="bg-white rounded-lg border border-slate-200 shadow-sm">
+    <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
       <div className="text-center py-16 px-6">
-        <div className="w-16 h-16 bg-coral-50 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Users className="w-8 h-8 text-coral-600" />
+        <div className="w-16 h-16 bg-coral-50 dark:bg-coral-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Users className="w-8 h-8 text-coral-600 dark:text-coral-400" />
         </div>
-        <h3 className="text-lg font-bold text-slate-950 mb-2">
+        <h3 className="text-lg font-bold text-slate-950 dark:text-slate-50 mb-2">
           No leads yet
         </h3>
-        <p className="text-sm text-slate-600 max-w-sm mx-auto mb-6 font-medium">
+        <p className="text-sm text-slate-600 dark:text-slate-400 max-w-sm mx-auto mb-6 font-medium">
           Start building your pipeline by adding your first lead. Track companies, contacts, and deals all in one place.
         </p>
         <button

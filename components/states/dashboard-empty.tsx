@@ -3,15 +3,15 @@ import Link from 'next/link';
 
 export function DashboardEmpty() {
   return (
-    <div className="bg-white rounded-lg border border-slate-200 shadow-sm">
+    <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
       <div className="text-center py-20 px-6">
-        <div className="w-20 h-20 bg-coral-50 rounded-full flex items-center justify-center mx-auto mb-6">
-          <TrendingUp className="w-10 h-10 text-coral-600" />
+        <div className="w-20 h-20 bg-coral-50 dark:bg-coral-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+          <TrendingUp className="w-10 h-10 text-coral-600 dark:text-coral-400" />
         </div>
-        <h2 className="text-2xl font-bold text-slate-950 mb-3">
+        <h2 className="text-2xl font-bold text-slate-950 dark:text-slate-50 mb-3">
           Welcome to your CRM
         </h2>
-        <p className="text-base text-slate-600 max-w-md mx-auto mb-8 font-medium">
+        <p className="text-base text-slate-600 dark:text-slate-400 max-w-md mx-auto mb-8 font-medium">
           Your dashboard will show key metrics and recent activity once you start adding leads. Ready to build your pipeline?
         </p>
         <Link
