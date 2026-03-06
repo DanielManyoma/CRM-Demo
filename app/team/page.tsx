@@ -191,9 +191,7 @@ export default function TeamPage() {
                         <LabelList
                           dataKey="value"
                           position="right"
-                          formatter={(v: number | string | (number | string)[]) =>
-                            `$${(Number(v) / 1000).toFixed(0)}k`
-                          }
+                          formatter={(v: unknown) => `$${(Number(v) / 1000).toFixed(0)}k`}
                           style={{ fontSize: 12, fill: chartLabelColor, fontWeight: 600 }}
                         />
                       </Bar>
